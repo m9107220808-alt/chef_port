@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Админ-панель Chef Port</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            padding: 0 15px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .menu-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 2px solid transparent;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            border-color: #2a5298;
+        }
+
+        .menu-card-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .menu-card-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .menu-card-count {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2a5298;
+            margin-top: 8px;
+        }
+
+        .orders-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .orders-section h2 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+            font-size: 18px;
+            border-bottom: 2px solid #2a5298;
+            padding-bottom: 10px;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid #2a5298;
+            transition: all 0.2s;
+        }
+
+        .order-item:hover {
+            background: #e8ecf1;
+        }
+
+        .order-info {
+            flex: 1;
+        }
+
+        .order-id {
+            font-weight: 700;
+            color: #1e3c72;
+            font-size: 14px;
+        }
+
+        .order-customer {
+            font-size: 12px;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .order-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2a5298;
+            margin-right: 15px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-new {
+            background: #ffd93d;
+            color: #333;
+        }
+
+        .status-confirmed {
+            background: #6bcf7f;
+            color: white;
+        }
+
+        .status-cooking {
+            background: #ff9ff3;
+            color: white;
+        }
+
+        .status-delivering {
+            background: #54a0ff;
+            color: white;
+        }
+
+        .status-completed {
+            background: #48dbfb;
+            color: white;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #2a5298;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1e3c72;
+        }
+
+        .btn-secondary {
+            background: #e8ecf1;
+            color: #1e3c72;
+            border: 1px solid #2a5298;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d8e3;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff5252;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2a5298;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: white;
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255,255,255,0.7);
+            font-size: 12px;
+            margin-top: 30px;
+        }
+
+        .refresh-btn {
+            background: white;
+            color: #2a5298;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .refresh-btn:hover {
+            background: #e8ecf1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 Админ-панель Chef Port</h1>
+        <p>Управление заказами и доставкой</p>
+    </div>
+
+    <div class="container">
+        <div id="message"></div>
+
+        <!-- СТАТИСТИКА -->
+        <div class="stats-grid" id="stats"></div>
+
+        <!-- МЕНЮ -->
+        <div class="menu-grid">
+            <div class="menu-card" onclick="showOrders('new')">
+                <div class="menu-card-icon">🆕</div>
+                <div class="menu-card-title">Новые</div>
+                <div class="menu-card-count" id="count-new">0</div>
+            </div>
+            <div class="menu-card" onclick="showOrders('confirmed')">
+                <div class="menu-card-icon">✅</div>
+                <div class="menu-card-title">Подтверждены</div>
+                <div class="menu-card-count" id="count-confirmed">0</div>
+            </div>
+            <div class="menu-card" onclick="showOrders('cooking')">
+                <div class="menu-card-icon">👨🍳</div>
+                <div class="menu-card-title">В обработке</div>
+                <div class="menu-card-count" id="count-cooking">0</div>
+            </div>
+            <div class="menu-card" onclick="showOrders('delivering')">
+                <div class="menu-card-icon">🚚</div>
+                <div class="menu-card-title">В доставке</div>
+                <div class="menu-card-count" id="count-delivering">0</div>
+            </div>
+            <div class="menu-card" onclick="showOrders('completed')">
+                <div class="menu-card-icon">🎉</div>
+                <div class="menu-card-title">Завершены</div>
+                <div class="menu-card-count" id="count-completed">0</div>
+            </div>
+            <div class="menu-card" onclick="showOrders('cancelled')">
+                <div class="menu-card-icon">❌</div>
+                <div class="menu-card-title">Отменены</div>
+                <div class="menu-card-count" id="count-cancelled">0</div>
+            </div>
+        </div>
+
+        <!-- СПИСОК ЗАКАЗОВ -->
+        <div class="orders-section" id="orders-container">
+            <h2>📋 Все заказы</h2>
+            <div id="orders-list"></div>
+        </div>
+
+        <button class="refresh-btn" onclick="loadData()">🔄 Обновить</button>
+    </div>
+
+    <div class="footer">
+        <p>🐟 Chef Port © 2026 | Админ-панель</p>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+        let allOrders = [];
+        let currentFilter = null;
+
+        async function loadData() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/orders`);
+                allOrders = await response.json();
+                
+                updateStats();
+                renderAllOrders();
+            } catch (error) {
+                showError('❌ Ошибка загрузки: ' + error.message);
+            }
+        }
+
+        function updateStats() {
+            const statuses = ['new', 'confirmed', 'cooking', 'delivering', 'completed', 'cancelled'];
+            let totalRevenue = 0;
+            let totalOrders = 0;
+
+            statuses.forEach(status => {
+                const count = allOrders.filter(o => o.status === status).length;
+                document.getElementById(`count-${status}`).textContent = count;
+            });
+
+            totalOrders = allOrders.length;
+            totalRevenue = allOrders.reduce((sum, o) => sum + o.total, 0);
+
+            const statsContainer = document.getElementById('stats');
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-label">📦 Всего</div>
+                    <div class="stat-value">${totalOrders}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">💰 Выручка</div>
+                    <div class="stat-value">${totalRevenue.toLocaleString('ru-RU')} ₽</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">📊 Средний</div>
+                    <div class="stat-value">${totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0} ₽</div>
+                </div>
+            `;
+        }
+
+        function showOrders(status) {
+            currentFilter = status;
+            const filtered = allOrders.filter(o => o.status === status);
+            renderOrders(filtered, `Заказы со статусом: ${status.toUpperCase()}`);
+        }
+
+        function renderAllOrders() {
+            renderOrders(allOrders, '📋 Все заказы');
+        }
+
+        function renderOrders(orders, title) {
+            const container = document.getElementById('orders-container');
+            const ordersList = document.getElementById('orders-list');
+
+            container.querySelector('h2').textContent = title;
+
+            if (orders.length === 0) {
+                ordersList.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <div>Нет заказов</div>
+                    </div>
+                `;
+                return;
+            }
+
+            ordersList.innerHTML = orders.map(order => `
+                <div class="order-item">
+                    <div class="order-info">
+                        <div class="order-id">📦 Заказ #${order.id}</div>
+                        <div class="order-customer">👤 ${order.name} | 📞 ${order.phone}</div>
+                        <div style="margin-top: 5px; font-size: 12px; color: #999;">📍 ${order.address}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div class="order-price">${order.total} ₽</div>
+                        <div class="status-badge status-${order.status}">
+                            ${getStatusText(order.status)}
+                        </div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-primary" onclick="updateStatus(${order.id}, 'confirmed')">✅ Подтвердить</button>
+                    <button class="btn btn-secondary" onclick="updateStatus(${order.id}, 'cooking')">👨🍳 В обработку</button>
+                    <button class="btn btn-secondary" onclick="updateStatus(${order.id}, 'delivering')">🚚 В доставку</button>
+                    <button class="btn btn-secondary" onclick="updateStatus(${order.id}, 'completed')">🎉 Завершить</button>
+                    <button class="btn btn-danger" onclick="updateStatus(${order.id}, 'cancelled')">❌ Отменить</button>
+                </div>
+            `).join('');
+        }
+
+        function getStatusText(status) {
+            const map = {
+                'new': '🆕 Новый',
+                'confirmed': '✅ Подтвержден',
+                'cooking': '👨🍳 Готовится',
+                'delivering': '🚚 В доставке',
+                'completed': '🎉 Завершен',
+                'cancelled': '❌ Отменен'
+            };
+            return map[status] || status;
+        }
+
+        async function updateStatus(orderId, newStatus) {
+            try {
+                const response = await fetch(`${API_BASE}/admin/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+
+                if (response.ok) {
+                    showSuccess(`✅ Статус обновлен на ${getStatusText(newStatus)}`);
+                    loadData();
+                } else {
+                    showError('❌ Ошибка обновления');
+                }
+            } catch (error) {
+                showError('❌ Ошибка: ' + error.message);
+            }
+        }
+
+        function showError(msg) {
+            const container = document.getElementById('message');
+            container.innerHTML = `<div class="error">${msg}</div>`;
+            setTimeout(() => container.innerHTML = '', 3000);
+        }
+
+        function showSuccess(msg) {
+            const container = document.getElementById('message');
+            container.innerHTML = `<div style="background:#2ecc71;color:white;padding:15px;border-radius:6px;text-align:center;margin-bottom:15px;">${msg}</div>`;
+            setTimeout(() => container.innerHTML = '', 2000);
+        }
+
+        // Инициализация
+        loadData();
+        setInterval(loadData, 5000); // Обновляем каждые 5 секунд
+    </script>
+</body>
+</html>
