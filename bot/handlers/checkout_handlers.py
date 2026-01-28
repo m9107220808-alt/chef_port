@@ -215,7 +215,7 @@ async def process_phone(message: Message, state: FSMContext):
             )
         except TelegramBadRequest:
             pass
-        
+    await message.delete()     
     # Простая валидация телефона
     phone_clean = re.sub(r'[^\d+]', '', phone)
     
