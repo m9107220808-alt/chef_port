@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse  # <-- Добавили этот импорт
 from api.config import settings
 from api.routes import products, orders, users
-
 
 # Создаём приложение FastAPI
 app = FastAPI(
@@ -11,10 +11,10 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Настройка CORS (для Mini Apps)
+# Настройка CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # В продакшене замени на конкретные домены!
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -25,25 +25,52 @@ app.include_router(products.router, prefix="/api/products", tags=["Товары"
 app.include_router(orders.router, prefix="/api/orders", tags=["Заказы"])
 app.include_router(users.router, prefix="/api/users", tags=["Пользователи"])
 
-@app.get("/")
-async def root():
-    """Главная страница API"""
-    return {
-        "message": "ChefPort API работает!",
-        "version": "1.0.0",
-        "docs": "/docs"
-    }
+# ЗАМЕНИЛИ старый @app.get("/") на этот:
+@app.get("/", response_class=HTMLResponse)
+async def root_page():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Шеф Порт</title>
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <style>/* твой CSS */</style>
+    </head>
+    <body>
+        <div class="card">
+            <div class="icon">🌊</div>
+            <h1>Шеф Порт</h1>
+            <p>Mini App готово!</p>
+            <div id="status">Инициализация...</div>
+        </div>
+        <script>
+            // ОБЯЗАТЕЛЬНО ДЛЯ TELEGRAM
+            window.Telegram?.WebApp.ready();
+            window.Telegram?.WebApp.expand();
+            
+            const user = window.Telegram?.WebApp.initDataUnsafe?.user;
+            document.getElementById('status').innerHTML = 
+                `✅ Готово! ID: ${user?.id || 'нет данных'}`;
+                
+            console.log('User:', user);
+        </script>
+    </body>
+    </html>
+    """
+
 
 @app.get("/health")
 async def health_check():
-    """Проверка здоровья API"""
     return {"status": "ok"}
 
+# Блок запуска (оставляем без изменений)
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(
         "api.main:app",
         host=settings.api_host,
         port=settings.api_port,
-        reload=True  # Авто-перезагрузка при изменениях
+        reload=True
     )

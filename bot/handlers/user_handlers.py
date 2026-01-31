@@ -2,7 +2,7 @@ import logging
 import re
 from aiogram import Router, F
 from aiogram.filters import Command, CommandStart
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, WebAppInfo
 from aiogram.fsm.context import FSMContext
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from bot.states import ProfileStates 
@@ -150,6 +150,7 @@ async def cmd_start(message: Message, state: FSMContext):
     
     kb = InlineKeyboardBuilder()
     kb.button(text="🛍️ Каталог товаров", callback_data="catalog")
+    kb.button(text="🌐 Открыть каталог", web_app=WebAppInfo(url="https://chefport-mini.ru"))
     kb.button(text="🛒 Моя корзина", callback_data="cart")
     kb.button(text="📦 Мои заказы", callback_data="orders")
     kb.button(text="😜 Профиль", callback_data="profile")
@@ -187,6 +188,7 @@ async def back_to_main_menu(callback: CallbackQuery):
     
     kb = InlineKeyboardBuilder()
     kb.button(text="🛍️ Каталог товаров", callback_data="catalog")
+    kb.button(text="🌐 Открыть каталог", web_app=WebAppInfo(url="https://chefport-mini.ru"))
     kb.button(text="🛒 Моя корзина", callback_data="cart")
     kb.button(text="📦 Мои заказы", callback_data="orders")
     kb.button(text="😜 Профиль", callback_data="profile")
