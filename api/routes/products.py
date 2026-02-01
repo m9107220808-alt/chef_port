@@ -18,7 +18,7 @@ async def get_products(
     db: AsyncSession = Depends(get_db)
 ):
     """Получить список товаров с фильтрацией"""
-    query = select(Product).where(Product.is_active == True)
+    query = select(Product)
     
     if category:
         query = query.where(Product.category == category)
