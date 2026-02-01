@@ -30,12 +30,22 @@ class ProductUpdate(BaseModel):
     in_stock: Optional[bool] = None
     is_active: Optional[bool] = None
 
-class ProductResponse(ProductBase):
+class ProductResponse(BaseModel):
     """Схема ответа товара"""
     id: int
+    name: str
+    description: Optional[str] = None
+    price: Optional[float] = None           # сделали Optional
+    weight: Optional[float] = None          # сделали Optional
+    unit: Optional[str] = "шт"
+    image_url: Optional[str] = None
+    category: Optional[str] = None
+    in_stock: Optional[bool] = True
+    is_active: Optional[bool] = True
     moysklad_id: Optional[str] = None
-    created_at: datetime
+    created_at: Optional[datetime] = None   # сделали Optional
     updated_at: Optional[datetime] = None
     
     class Config:
         from_attributes = True
+
