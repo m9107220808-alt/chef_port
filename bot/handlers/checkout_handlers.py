@@ -230,15 +230,7 @@ async def process_phone(message: Message, state: FSMContext):
     # Нормализуем телефон
     if phone_clean.startswith('8'):
         phone_clean = '+7' + phone_clean[1:]
-     # ✅ Удалить старое сообщение с просьбой ввода
-    if "prompt_message_id" in data:
-        try:
-            await message.bot.delete_message(
-                    chat_id=message.chat.id,
-                    message_id=data["prompt_message_id"]
-                )
-        except TelegramBadRequest:
-            pass
+    
     # Сохраняем телефон
     await state.update_data(customer_phone=phone_clean)
     try:
