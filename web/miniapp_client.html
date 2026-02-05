@@ -1159,6 +1159,9 @@
         </div>
     </div>
 
+    <!-- Подключаем реальные данные (сгенерированные скриптом) -->
+    <script src="products_data.js"></script>
+
     <script>
         const API_BASE = window.location.origin + '/api';
         const tg = window.Telegram?.WebApp;
@@ -1169,30 +1172,28 @@
             { id: 1, code: 'fish', name: 'Рыба', sort_order: 1 },
             { id: 2, code: 'seafood', name: 'Морепродукты', sort_order: 2 },
             { id: 3, code: 'caviar', name: 'Икра', sort_order: 3 },
-            { id: 4, code: 'other', name: 'Бакалея', sort_order: 4 }
+            { id: 4, code: 'other', name: 'Бакалея/Полуфабрикаты', sort_order: 4 }
         ];
 
         const DEMO_PRODUCTS = [
             { id: 1, categoryid: 1, name: 'Филе форели слабосоленое', priceperkg: 1890, is_weighted: true, is_hit: true, image_url: '/images/category_fish.png' },
             { id: 2, categoryid: 1, name: 'Филе семги слабосоленое', priceperkg: 2290, is_weighted: true, is_hit: true, image_url: '/images/category_fish.png' },
             { id: 3, categoryid: 1, name: 'Филе нерки слабосоленое', priceperkg: 1950, is_weighted: true, is_hit: false, image_url: '/images/category_fish.png' },
-            { id: 4, categoryid: 1, name: 'Филе горбуши слабосоленое', priceperkg: 1290, is_weighted: true, is_hit: false, image_url: '/images/category_fish.png' },
-            { id: 5, categoryid: 2, name: 'Креветки в горчичном соусе', priceperkg: 890, is_weighted: false, is_hit: true, image_url: '/images/category_seafood.png' },
-            { id: 6, categoryid: 2, name: 'Мидии в горчичном соусе', priceperkg: 590, is_weighted: false, is_hit: false, image_url: '/images/category_seafood.png' },
-            { id: 7, categoryid: 2, name: 'Кальмар в тар-тар соусе', priceperkg: 680, is_weighted: false, is_hit: false, image_url: '/images/category_seafood.png' },
-            { id: 8, categoryid: 2, name: 'Гребешки морские', priceperkg: 2100, is_weighted: true, is_hit: true, image_url: '/images/category_seafood.png' },
-            { id: 9, categoryid: 3, name: 'Икра горбуши 200г', priceperkg: 1780, is_weighted: false, is_hit: true, image_url: '/images/category_caviar.png' },
-            { id: 10, categoryid: 3, name: 'Икра кеты 130г', priceperkg: 1183, is_weighted: false, is_hit: false, image_url: '/images/category_caviar.png' },
-            { id: 11, categoryid: 4, name: 'Котлеты лососевые', priceperkg: 750, is_weighted: false, is_hit: true, image_url: '/images/hero.png' },
-            { id: 12, categoryid: 4, name: 'Пельмени лососевые цветные', priceperkg: 690, is_weighted: false, is_hit: false, image_url: '/images/hero.png' }
+            // ... оставляем немного для теста
         ];
+
+        // Используем импортированные товары, если есть, иначе демо
+        // IMPORTED_PRODUCTS определен в products_data.js
+        let allProducts = (typeof IMPORTED_PRODUCTS !== 'undefined' && IMPORTED_PRODUCTS.length > 0)
+            ? IMPORTED_PRODUCTS
+            : DEMO_PRODUCTS;
 
         const CATEGORY_CONFIG = {
             'all': { icon: '🐟', class: 'cat-all', name: 'Все товары', image: '/images/hero.png' },
             'fish': { icon: '🐟', class: 'cat-fish', name: 'Рыба', image: '/images/category_fish.png' },
             'seafood': { icon: '🦐', class: 'cat-seafood', name: 'Морепродукты', image: '/images/category_seafood.png' },
             'caviar': { icon: '🍣', class: 'cat-caviar', name: 'Икра', image: '/images/category_caviar.png' },
-            'other': { icon: '📦', class: 'cat-other', name: 'Бакалея', image: '/images/hero.png' }
+            'other': { icon: '📦', class: 'cat-other', name: 'Бакалея/Полуфабрикаты', image: '/images/hero.png' }
         };
 
         if (tg) {
@@ -1205,9 +1206,9 @@
             }
         }
 
-        let allProducts = [];
-        let allCategories = [];
-        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        // allProducts уже определен выше
+        let allCategories = DEMO_CATEGORIES;
+        let cart = [];
         let currentCategory = 'all';
 
         function switchView(viewName) {
