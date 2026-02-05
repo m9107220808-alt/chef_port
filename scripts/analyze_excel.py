@@ -1,22 +1,21 @@
 import pandas as pd
 import sys
-import json
 
 try:
-    df = pd.read_excel("Заказ ИП Город (2).xlsx")
-    print("Columns:", list(df.columns))
-    print("First 3 rows:")
-    print(df.head(3).to_markdown())
+    # Заголовок найден на 11 строке (индекс 11)
+    df = pd.read_excel("Заказ ИП Город (2).xlsx", header=11)
     
-    # Пытаемся найти колонку с фото
-    photo_col = next((c for c in df.columns if 'фото' in c.lower() or 'ссылка' in c.lower() or 'image' in c.lower()), None)
-    if photo_col:
-        print(f"\nFound photo column: {photo_col}")
-        print("Sample photos:", df[photo_col].head(3).tolist())
-    else:
-        print("\nPhoto column not found automatically.")
+    print("\n--- Columns found ---")
+    print(list(df.columns))
+    
+    print("\n--- First 20 rows of data ---")
+    # Выводим первые 20 строк, чтобы понять где категории
+    print(df.head(20).to_string())
+    
+    print("\n--- Photo Links Analysis ---")
+    # Проверяем колонку Фото
+    if 'Фото' in df.columns:
+        print(df['Фото'].head(10).tolist())
 
-except ImportError:
-    print("Pandas or openpyxl not installed. Please install: pip install pandas openpyxl tabulate")
 except Exception as e:
     print(f"Error: {e}")
