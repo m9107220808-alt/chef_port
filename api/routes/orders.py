@@ -58,23 +58,30 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
         if not product:
             raise HTTPException(status_code=404, detail=f"Товар {item.product_id} не найден")
         
-        if not product.in_stock:
-            raise HTTPException(status_code=400, detail=f"Товар {product.name} нет в наличии")
+        # Закомментируем проверку на наличие - товары всегда доступны для демо
+        # if not product.in_stock:
+        #     raise HTTPException(status_code=400, detail=f"Товар {product.name} нет в наличии")
         
-        item_price = product.price * item.quantity
+        price = product.priceperkg if product.priceperkg else 0
+        item_price = price * item.quantity
         total_amount += item_price
         
         order_items.append(OrderItem(
             product_id=item.product_id,
             quantity=item.quantity,
-            price=product.price
+            price=price
         ))
+    
+    # Формируем адрес
+    delivery_address = order_data.delivery_address or "Самовывоз"
+    if order_data.delivery_method == "pickup":
+        delivery_address = "Самовывоз"
     
     # Создаём заказ
     db_order = Order(
         user_id=order_data.user_id,
         total_amount=total_amount,
-        delivery_address=order_data.delivery_address,
+        delivery_address=delivery_address,
         comment=order_data.comment,
         items=order_items
     )

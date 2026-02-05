@@ -33,18 +33,17 @@ class ProductUpdate(BaseModel):
 class ProductResponse(BaseModel):
     """Схема ответа товара"""
     id: int
+    categoryid: Optional[int] = None
+    code: Optional[str] = None
     name: str
     description: Optional[str] = None
-    price: Optional[float] = None           # сделали Optional
-    weight: Optional[float] = None          # сделали Optional
-    unit: Optional[str] = "шт"
+    priceperkg: Optional[float] = None
+    weight: Optional[float] = None
+    is_weighted: Optional[bool] = False
+    min_weight: Optional[float] = None
     image_url: Optional[str] = None
-    category: Optional[str] = None
-    in_stock: Optional[bool] = True
-    is_active: Optional[bool] = True
-    moysklad_id: Optional[str] = None
-    created_at: Optional[datetime] = None   # сделали Optional
-    updated_at: Optional[datetime] = None
+    is_hit: Optional[bool] = False
+    externalid: Optional[str] = None
     
     class Config:
         from_attributes = True

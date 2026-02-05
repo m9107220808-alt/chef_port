@@ -26,7 +26,7 @@ from api.models.order_message import OrderMessage
 
 logger = logging.getLogger(__name__)
 
-DATABASE_URL = "postgresql+asyncpg://postgres:mA2kDs5jk@localhost:5432/chefport_db"
+from bot.config import DATABASE_URL
 
 engine = create_async_engine(DATABASE_URL, echo=False)
 async_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
@@ -52,10 +52,10 @@ async def init_demo_catalog():
             return
 
         categories = [
-            Category(code="fresh_fish", name="Свежая рыба", sortorder=1),
-            Category(code="frozen", name="Замороженные продукты", sortorder=2),
-            Category(code="smoked", name="Копчено-соленые", sortorder=3),
-            Category(code="delicacy", name="Деликатесы", sortorder=4),
+            Category(code="fresh_fish", name="Свежая рыба", sort_order=1),
+            Category(code="frozen", name="Замороженные продукты", sort_order=2),
+            Category(code="smoked", name="Копчено-соленые", sort_order=3),
+            Category(code="delicacy", name="Деликатесы", sort_order=4),
         ]
 
         session.add_all(categories)
@@ -67,8 +67,8 @@ async def init_demo_catalog():
                 code="salmon",
                 name="Филе Атлантического лосося",
                 priceperkg=1780,
-                isweighted=True,
-                minweightkg=0.5,
+                is_weighted=True,
+                min_weight=0.5,
                 description="Свежее филе премиум качества"
             ),
             Product(
@@ -76,8 +76,8 @@ async def init_demo_catalog():
                 code="seabass",
                 name="Морской окунь",
                 priceperkg=1300,
-                isweighted=True,
-                minweightkg=1.0,
+                is_weighted=True,
+                min_weight=1.0,
                 description="Цельная охлажденная рыба"
             ),
             Product(
@@ -85,8 +85,8 @@ async def init_demo_catalog():
                 code="shrimp",
                 name="Креветки королевские",
                 priceperkg=2500,
-                isweighted=True,
-                minweightkg=0.5,
+                is_weighted=True,
+                min_weight=0.5,
                 description="Замороженные неочищенные"
             ),
         ]
@@ -102,10 +102,10 @@ async def get_categories() -> List[tuple]:
     """Получить все категории"""
     async with async_session() as session:
         result = await session.execute(
-            select(Category).order_by(Category.sortorder)
+            select(Category).order_by(Category.sort_order)
         )
         categories = result.scalars().all()
-        return [(cat.id, cat.code, cat.name, cat.sortorder) for cat in categories]
+        return [(cat.id, cat.code, cat.name, cat.sort_order) for cat in categories]
 
 
 # ===== ТОВАРЫ =====
@@ -123,7 +123,7 @@ async def get_products_by_category(cat_code: str) -> List[tuple]:
 
         return [
             (p.id, p.categoryid, p.code, p.name, p.priceperkg, 
-             p.isweighted, p.minweightkg, p.description)
+             p.is_weighted, p.min_weight, p.description)
             for p in products
         ]
 
@@ -141,8 +141,8 @@ async def get_product_by_code(code: str) -> Optional[tuple]:
 
         return (
             product.id, product.categoryid, product.name, 
-            product.priceperkg, product.isweighted, 
-            product.minweightkg, product.description
+            product.priceperkg, product.is_weighted, 
+            product.min_weight, product.description
         )
 
 
@@ -159,8 +159,8 @@ async def get_product_by_id(product_id: int) -> Optional[tuple]:
 
         return (
             product.id, product.categoryid, product.code, product.name,
-            product.priceperkg, product.isweighted, 
-            product.minweightkg, product.description
+            product.priceperkg, product.is_weighted, 
+            product.min_weight, product.description
         )
 
 

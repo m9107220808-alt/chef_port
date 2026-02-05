@@ -149,14 +149,23 @@ async def cmd_start(message: Message, state: FSMContext):
     text += "📋 Выберите действие из меню ниже:"
     
     kb = InlineKeyboardBuilder()
-    kb.button(text="🛍️ Каталог товаров", callback_data="catalog")
-    kb.button(text="🌐 Открыть каталог", web_app=WebAppInfo(url="https://chefport-mini.ru"))
-    kb.button(text="🛒 Моя корзина", callback_data="cart")
-    kb.button(text="📦 Мои заказы", callback_data="orders")
-    kb.button(text="😜 Профиль", callback_data="profile")
+    
+    # 🌐 ГЛАВНАЯ КНОПКА - ОТКРЫТЬ ПРИЛОЖЕНИЕ (Меню + Заказы + Профиль)
+    # Используем прямой URL на наше клиентское приложение
+    web_app_url = "https://chefport-mini.ru/app/client"
+    
+    kb.button(text="🛍️ Открыть магазин", web_app=WebAppInfo(url=web_app_url))
+    
+    # Оставляем кнопку контактов и инфо как обычные
     kb.button(text="📞 Контакты", callback_data="contacts")
     kb.button(text="ℹ️ Информация", callback_data="info")
-    kb.adjust(2)
+    
+    # Если админ - кнопка админки (тоже Mini App)
+    if user_id in ADMIN_IDS:
+        admin_url = "https://chefport-mini.ru/app/admin"
+        kb.button(text="🔧 Админ-панель", web_app=WebAppInfo(url=admin_url))
+
+    kb.adjust(1, 2, 1)
     
     await message.answer(
         text,

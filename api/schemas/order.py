@@ -30,9 +30,13 @@ class OrderItemResponse(BaseModel):
 class OrderCreate(BaseModel):
     """Схема для создания заказа"""
     user_id: int
-    delivery_address: str = Field(..., min_length=10, max_length=500)
+    customer_name: Optional[str] = None
+    customer_phone: Optional[str] = None
+    delivery_method: str = "pickup"  # pickup или delivery
+    delivery_address: Optional[str] = None
+    payment_method: str = "cash"  # cash или card
     comment: Optional[str] = None
-    items: List[OrderItemCreate] = Field(..., min_items=1)
+    items: List[OrderItemCreate] = Field(..., min_length=1)
 
 class OrderResponse(BaseModel):
     """Схема ответа заказа"""

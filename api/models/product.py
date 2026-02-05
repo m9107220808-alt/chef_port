@@ -13,8 +13,11 @@ class Product(Base):
     priceperkg = Column(Float, nullable=False, default=0)
     weight = Column(Float, default=0)
     description = Column(Text, nullable=True)
-    isweighted = Column(Boolean, nullable=False, default=False)
-    minweightkg = Column(Float, nullable=False, default=0.1)
+    # Map Python is_weighted to DB column isweighted
+    is_weighted = Column("isweighted", Boolean, nullable=False, default=False)
+    min_weight = Column("minweightkg", Float, nullable=False, default=0.1)
+    image_url = Column(String, nullable=True)
+    is_hit = Column(Boolean, default=False)
     externalid = Column(String(255), nullable=True)
     
     def __repr__(self):

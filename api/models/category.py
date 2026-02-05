@@ -8,8 +8,9 @@ class Category(Base):
     
     id = Column(Integer, primary_key=True, autoincrement=True)
     code = Column(String(50), unique=True, nullable=False)
-    name = Column(String(255), nullable=False)
-    sortorder = Column(Integer, default=0)
+    name = Column(String, nullable=False)
+    sort_order = Column(Integer, default=0)
+    image_url = Column(String, nullable=True)  # Фото категории
     
     def __repr__(self):
         return f"<Category(id={self.id}, code={self.code}, name={self.name})>"

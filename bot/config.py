@@ -11,3 +11,6 @@ ADMIN_IDS = {878283648}  # Замени на свой ID или добавь н�
 
 # URL Mini App (если будет)
 ADMIN_WEBAPP_URL = "https://shefport-admin.vercel.app"
+
+# База данных
+DATABASE_URL = os.getenv("DATABASE_URL")
