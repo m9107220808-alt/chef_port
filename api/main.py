@@ -61,6 +61,13 @@ IMAGES_DIR = os.path.join(WEB_DIR, "images")
 if os.path.exists(IMAGES_DIR):
     app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
+@app.get("/products_data.js")
+async def get_products_data_js():
+    file_path = os.path.join(WEB_DIR, "products_data.js")
+    if os.path.exists(file_path):
+        return FileResponse(file_path, media_type="application/javascript")
+    return HTMLResponse(content="console.warn('products_data.js not found');", status_code=404)
+
 @app.get("/app/client", response_class=HTMLResponse)
 async def get_client_app():
     return FileResponse(os.path.join(WEB_DIR, "miniapp_client.html"))
