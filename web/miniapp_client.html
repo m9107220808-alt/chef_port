@@ -1172,152 +1172,41 @@
         ];
 
         const DEMO_PRODUCTS = [
-            { id: 1, categoryid: 1, name: 'Филе форели слабосоленое', priceperkg: 1890, is_weighted: true, is_hit: true, image_url: 'https://drive.google.com/uc?export=view&id=1WSsKN2boc1q-YC7UslSRh56nQAJ-vcxg' },
-            { id: 2, categoryid: 1, name: 'Филе семги слабосоленое', priceperkg: 2290, is_weighted: true, is_hit: true, image_url: 'https://drive.google.com/uc?export=view&id=1-YvUQVKNmPIVGhbEBHsppBFhJUNuwkeu' },
-            { id: 3, categoryid: 1, name: 'Филе нерки слабосоленое', priceperkg: 1950, is_weighted: true, is_hit: false, image_url: 'https://drive.google.com/uc?export=view&id=1jhUW4Esb2tf1TJndqlqFcLoTqoxGJ4Yn' },
-            { id: 4, categoryid: 1, name: 'Филе горбуши слабосоленое', priceperkg: 1290, is_weighted: true, is_hit: false, image_url: 'https://drive.google.com/uc?export=view&id=1QyLpNevUCe_-EVlfYeKtJPUifFoTcwhl' },
-            { id: 5, categoryid: 2, name: 'Креветки в горчичном соусе', priceperkg: 890, is_weighted: false, is_hit: true, image_url: 'https://drive.google.com/uc?export=view&id=1kzpP_GQlFE_Vnb5wIC4FxpmUFzaxYAqU' },
-            { id: 6, categoryid: 2, name: 'Мидии в горчичном соусе', priceperkg: 590, is_weighted: false, is_hit: false, image_url: 'https://drive.google.com/uc?export=view&id=1OtTpNWdkZS1I-TGqI4Q2kSIgVf7qvDoh' },
-            { id: 7, categoryid: 2, name: 'Кальмар в тар-тар соусе', priceperkg: 680, is_weighted: false, is_hit: false, image_url: 'https://drive.google.com/uc?export=view&id=1U87nxpOiXU7ECqnyRYLNJSYNZzAyejrn' },
-            { id: 8, categoryid: 2, name: 'Гребешки морские', priceperkg: 2100, is_weighted: true, is_hit: true, image_url: 'https://drive.google.com/uc?export=view&id=1q46o6XVw6S4zEHECXFqKSg4Lj-KgmTkx' },
-            { id: 9, categoryid: 3, name: 'Икра горбуши 200г', priceperkg: 1780, is_weighted: false, is_hit: true, image_url: 'https://drive.google.com/uc?export=view&id=1o1qgye6SuEK8PpV_qD7p7gA_3-FlkNJ_' },
-            { id: 10, categoryid: 3, name: 'Икра кеты 130г', priceperkg: 1183, is_weighted: false, is_hit: false, image_url: 'https://drive.google.com/uc?export=view&id=1IkqXSlq578GRvoMZrH7oV7GnXNOp-ynn' },
-            { id: 11, categoryid: 4, name: 'Котлеты лососевые', priceperkg: 750, is_weighted: false, is_hit: true, image_url: 'https://drive.google.com/uc?export=view&id=1v86eJuGYo_GZcZUi7tLq9Gg0DiC5pVoz' },
-            { id: 12, categoryid: 4, name: 'Пельмени лососевые цветные', priceperkg: 690, is_weighted: false, is_hit: false, image_url: 'https://drive.google.com/uc?export=view&id=11IbMXHRnCoExwBuo7EZTGhezLpEefuQg' }
+            { id: 1, categoryid: 1, name: 'Филе форели слабосоленое', priceperkg: 1890, is_weighted: true, is_hit: true, image_url: '/images/category_fish.png' },
+            { id: 2, categoryid: 1, name: 'Филе семги слабосоленое', priceperkg: 2290, is_weighted: true, is_hit: true, image_url: '/images/fish_salmon.png' },
+            { id: 3, categoryid: 1, name: 'Филе нерки слабосоленое', priceperkg: 1950, is_weighted: true, is_hit: false, image_url: '/images/category_fish.png' },
+            { id: 4, categoryid: 1, name: 'Филе горбуши слабосоленое', priceperkg: 1290, is_weighted: true, is_hit: false, image_url: '/images/category_fish.png' },
+            { id: 5, categoryid: 2, name: 'Креветки в горчичном соусе', priceperkg: 890, is_weighted: false, is_hit: true, image_url: '/images/category_seafood.png' },
+            { id: 6, categoryid: 2, name: 'Мидии в горчичном соусе', priceperkg: 590, is_weighted: false, is_hit: false, image_url: '/images/category_seafood.png' },
+            { id: 7, categoryid: 2, name: 'Кальмар в тар-тар соусе', priceperkg: 680, is_weighted: false, is_hit: false, image_url: '/images/seafood_mix.png' },
+            { id: 8, categoryid: 2, name: 'Гребешки морские', priceperkg: 2100, is_weighted: true, is_hit: true, image_url: '/images/seafood_mix.png' },
+            { id: 9, categoryid: 3, name: 'Икра горбуши 200г', priceperkg: 1780, is_weighted: false, is_hit: true, image_url: '/images/category_caviar.png' },
+            { id: 10, categoryid: 3, name: 'Икра кеты 130г', priceperkg: 1183, is_weighted: false, is_hit: false, image_url: '/images/category_caviar.png' },
+            { id: 11, categoryid: 4, name: 'Котлеты лососевые', priceperkg: 750, is_weighted: false, is_hit: true, image_url: '/images/hero.png' },
+            { id: 12, categoryid: 4, name: 'Пельмени лососевые цветные', priceperkg: 690, is_weighted: false, is_hit: false, image_url: '/images/hero.png' }
         ];
 
-        const CATEGORY_CONFIG = {
-            'all': { icon: '🐟', class: 'cat-all', name: 'Все товары' },
-            'fish': { icon: '🐟', class: 'cat-fish', name: 'Рыба' },
-            'seafood': { icon: '🦐', class: 'cat-seafood', name: 'Морепродукты' },
-            'caviar': { icon: '🍣', class: 'cat-caviar', name: 'Икра' },
-            'other': { icon: '📦', class: 'cat-other', name: 'Бакалея' }
-        };
-
-        if (tg) {
-            tg.ready();
-            tg.expand();
-            if (tg.initDataUnsafe?.user) {
-                USER_ID = tg.initDataUnsafe.user.id;
-                document.getElementById('profile-name').textContent = tg.initDataUnsafe.user.first_name || 'Гость';
-                document.getElementById('profile-id').textContent = 'ID: ' + USER_ID;
-            }
-        }
-
-        let allProducts = [];
-        let allCategories = [];
-        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        let currentCategory = 'all';
-
-        function switchView(viewName) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('view-' + viewName).classList.add('active');
-            document.querySelector(`.nav-item[data-view="${viewName}"]`)?.classList.add('active');
-            if (viewName === 'orders') loadOrders();
-            if (viewName === 'cart') renderCart();
-        }
-
-        async function loadCategories() {
-            try {
-                const res = await fetch(API_BASE + '/categories');
-                if (!res.ok) throw new Error('API недоступен');
-                allCategories = await res.json();
-            } catch (e) {
-                console.log('Используем демо-категории');
-                allCategories = DEMO_CATEGORIES;
-            }
-            renderCategories();
-        }
-
-        async function loadProducts() {
-            try {
-                const res = await fetch(API_BASE + '/products');
-                if (!res.ok) throw new Error('API недоступен');
-                allProducts = await res.json();
-                if (!allProducts.length) throw new Error('Пустой ответ');
-
-                // Обогащаем товары из API фото из демо-данных
-                allProducts = allProducts.map(p => {
-                    if (!p.image_url) {
-                        // Ищем совпадение по имени в демо-данных
-                        const demo = DEMO_PRODUCTS.find(d =>
-                            p.name.toLowerCase().includes(d.name.toLowerCase().split(' ')[0]) ||
-                            d.name.toLowerCase().includes(p.name.toLowerCase().split(' ')[0])
-                        );
-                        if (demo && demo.image_url) {
-                            p.image_url = demo.image_url;
-                        }
-                    }
-                    return p;
-                });
-            } catch (e) {
-                console.log('Используем демо-товары');
-                allProducts = DEMO_PRODUCTS;
-            }
-            renderProducts();
-            renderHits();
-        }
-
-        async function loadOrders() {
-            const container = document.getElementById('orders-list');
-            try {
-                const res = await fetch(API_BASE + '/orders?user_id=' + USER_ID);
-                const orders = await res.json();
-                if (!orders.length) throw new Error('Нет заказов');
-                container.innerHTML = orders.map(o => `
-                    <div class="order-card">
-                        <div class="order-header">
-                            <span class="order-id">Заказ #${o.id}</span>
-                            <span class="order-total">${Math.round(o.total_amount || o.total || 0)} ₽</span>
-                        </div>
-                        <div class="order-status">${getStatusText(o.status)}</div>
-                    </div>
-                `).join('');
-            } catch (e) {
-                container.innerHTML = '<div class="cart-empty"><div class="cart-empty-icon">📦</div>У вас пока нет заказов</div>';
-            }
-        }
-
-        function getStatusText(status) {
-            return {
-                'new': '🆕 Новый', 'confirmed': '✅ Подтверждён', 'cooking': '👨‍🍳 Готовится',
-                'delivering': '🚚 В доставке', 'completed': '🎉 Выполнен', 'cancelled': '❌ Отменён'
-            }[status] || status;
-        }
-
-        function renderCategories() {
-            const container = document.getElementById('categories-grid');
-            const cfg = CATEGORY_CONFIG;
-
-            let html = `
-                <div class="category-card ${cfg.all.class} ${currentCategory === 'all' ? 'active' : ''}" onclick="selectCategory('all')">
-                    <span class="category-name"><span class="category-icon">${cfg.all.icon}</span> ${cfg.all.name}</span>
-                </div>
-            `;
-
-            allCategories.forEach(c => {
-                const config = cfg[c.code] || cfg.other;
-                html += `
-                    <div class="category-card ${config.class} ${currentCategory === c.code ? 'active' : ''}" onclick="selectCategory('${c.code}')">
-                        <span class="category-name"><span class="category-icon">${config.icon}</span> ${c.name}</span>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
+        // ... (CATEGORY_CONFIG уже обновлен)
 
         function getProductIcon(product) {
-            // Если есть реальное фото - используем его с fallback на emoji
+            // Если есть реальное фото - используем его
             if (product.image_url) {
                 const emoji = getEmojiByCategory(product.categoryid);
+                const categoryImage = getCategoryImage(product.categoryid);
                 return `<img src="${product.image_url}" alt="${product.name}" 
                     style="width:100%; height:100%; object-fit:cover; border-radius:12px;"
-                    onerror="this.style.display='none'; this.parentElement.innerHTML='${emoji}';">`;
+                    onerror="this.onerror=null; this.src='${categoryImage}';">`;
             }
-            // Fallback на emoji по категории
-            return getEmojiByCategory(product.categoryid);
+            // Fallback на фото категории
+            const categoryImage = getCategoryImage(product.categoryid);
+            return `<img src="${categoryImage}" alt="${product.name}" 
+                style="width:100%; height:100%; object-fit:cover; border-radius:12px;">`;
+        }
+
+        function getCategoryImage(categoryId) {
+            const cat = allCategories.find(c => c.id === categoryId);
+            if (!cat) return '/images/hero.png';
+            return (CATEGORY_CONFIG[cat.code] || CATEGORY_CONFIG.other).image || '/images/hero.png';
         }
 
         function getEmojiByCategory(categoryId) {
@@ -1440,6 +1329,39 @@
             const cat = allCategories.find(c => c.id === item.categoryid);
             if (!cat) return '🐟';
             return (CATEGORY_CONFIG[cat.code] || CATEGORY_CONFIG.other).icon;
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categories-grid');
+            const cfg = CATEGORY_CONFIG;
+
+            let html = '';
+
+            // Карточка "Все товары"
+            const allStyle = cfg.all.image ? `background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('${cfg.all.image}') center/cover no-repeat; text-shadow: 0 2px 4px rgba(0,0,0,0.5);` : '';
+            html += `
+                <div class="category-card ${cfg.all.class} ${currentCategory === 'all' ? 'active' : ''}" 
+                    onclick="selectCategory('all')"
+                    style="${allStyle}">
+                    <span class="category-name"><span class="category-icon">${cfg.all.icon}</span> ${cfg.all.name}</span>
+                </div>
+            `;
+
+            // Остальные категории
+            allCategories.forEach(c => {
+                const config = cfg[c.code] || cfg.other;
+                const style = config.image ? `background: linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.6)), url('${config.image}') center/cover no-repeat; text-shadow: 0 2px 4px rgba(0,0,0,0.5);` : '';
+
+                html += `
+                    <div class="category-card ${config.class} ${currentCategory === c.code ? 'active' : ''}" 
+                        onclick="selectCategory('${c.code}')" 
+                        style="${style}">
+                        <span class="category-name"><span class="category-icon">${config.icon}</span> ${c.name}</span>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
         }
 
         function renderCart() {

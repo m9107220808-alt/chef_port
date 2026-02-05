@@ -56,8 +56,10 @@ async def get_all_products(db: AsyncSession = Depends(get_db)):
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB_DIR = os.path.join(BASE_DIR, "web")
 
-# Подключение статики (если будет CSS/JS отдельно)
-# app.mount("/static", StaticFiles(directory=os.path.join(WEB_DIR, "static")), name="static")
+# Подключение статики для изображений
+IMAGES_DIR = os.path.join(WEB_DIR, "images")
+if os.path.exists(IMAGES_DIR):
+    app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
 @app.get("/app/client", response_class=HTMLResponse)
 async def get_client_app():
