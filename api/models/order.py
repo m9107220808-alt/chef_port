@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, BigInteger, String, Float, Text, DateTime
+from sqlalchemy import Column, Integer, BigInteger, String, Float, Text, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from api.database import Base
 
@@ -19,6 +20,8 @@ class Order(Base):
     total = Column(Integer, nullable=False)
     createdat = Column(DateTime(timezone=True), server_default=func.now())
     updatedat = Column(DateTime(timezone=True), onupdate=func.now())
+
+    items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
     
     def __repr__(self):
         return f"<Order(id={self.id}, userid={self.userid}, total={self.total})>"
@@ -29,12 +32,14 @@ class OrderItem(Base):
     __tablename__ = "orderitems"
     
     id = Column(Integer, primary_key=True, autoincrement=True)
-    orderid = Column(Integer, nullable=False)
+    orderid = Column(Integer, ForeignKey("orders.id"), nullable=False)
     productcode = Column(String(50), nullable=True)
     name = Column(String(255), nullable=False)
     price = Column(Float, nullable=False)
     quantity = Column(Float, nullable=False)
     weight = Column(String(50), nullable=True)
+
+    order = relationship("Order", back_populates="items")
     
     def __repr__(self):
         return f"<OrderItem(orderid={self.orderid}, name={self.name})>"
