@@ -70,7 +70,7 @@ async def get_products_data_js():
 
 @app.get("/app/client", response_class=HTMLResponse)
 async def get_client_app():
-    return FileResponse(os.path.join(WEB_DIR, "miniapp_client.html"))
+    return FileResponse(os.path.join(WEB_DIR, "miniapp_v2.html"))
 
 @app.get("/app/admin", response_class=HTMLResponse)
 async def get_admin_app():

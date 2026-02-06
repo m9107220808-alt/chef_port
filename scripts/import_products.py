@@ -3,6 +3,7 @@ import urllib.request
 import os
 import time
 import re
+import json  # ДОБАВЛЕНО ДЛЯ ПРАВИЛЬНОГО JSON
 
 # Конфигурация
 EXCEL_FILE = "Заказ ИП Город (2).xlsx"
@@ -122,7 +123,8 @@ def main():
 
     # Генерируем JS файл, который можно подключить в miniapp_client.html
     # Он заменит DEMO_PRODUCTS
-    js_content = f"const IMPORTED_PRODUCTS = {products};\n"
+    # КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: используем json.dumps вместо str(products) для правильного JS-синтаксиса
+    js_content = f"const IMPORTED_PRODUCTS = {json.dumps(products, ensure_ascii=False, indent=2)};\n"
     
     with open(JSON_OUTPUT, 'w', encoding='utf-8') as f:
         f.write(js_content)
