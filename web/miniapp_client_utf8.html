@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chef Port - Морепродукты</title>
+    <title>Chef Port - РњРѕСЂРµРїСЂРѕРґСѓРєС‚С‹</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -40,7 +40,7 @@
             min-height: 100vh;
         }
 
-        /* Анимации */
+        /* РђРЅРёРјР°С†РёРё */
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -102,14 +102,13 @@
         }
 
         .section-title {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 800;
             margin: 0;
-            background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+            background: linear-gradient(135deg, #fff 0%, #aaccff 100%);
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
@@ -151,7 +150,7 @@
             pointer-events: none;
         }
 
-        /* ХИТЫ (SCROLL) - Moved Top */
+        /* РҐРРўР« (SCROLL) - Moved Top */
         .hits-section {
             padding: 0 0 24px;
         }
@@ -241,7 +240,7 @@
             color: var(--text-primary);
         }
 
-        /* КАТЕГОРИИ */
+        /* РљРђРўР•Р“РћР РР */
         .categories-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -297,7 +296,7 @@
             color: var(--text-primary);
         }
 
-        /* ТОВАРЫ (LIST STYLE - "INLINE") */
+        /* РўРћР’РђР Р« (LIST STYLE - "INLINE") */
         .products-list {
             display: flex;
             flex-direction: column;
@@ -356,7 +355,6 @@
             line-height: 1.3;
             display: -webkit-box;
             -webkit-line-clamp: 2;
-            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
@@ -398,7 +396,7 @@
             color: white;
         }
 
-        /* НАВИГАЦИЯ */
+        /* РќРђР’РР“РђР¦РРЇ */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -438,7 +436,7 @@
             font-size: 20px;
         }
 
-        /* МОДАЛКА */
+        /* РњРћР”РђР›РљРђ */
         .product-modal {
             position: fixed;
             top: 0;
@@ -463,15 +461,10 @@
             border-radius: 24px 24px 0 0;
             width: 100%;
             max-width: 600px;
-            padding: 0;
-            /* Remove padding to let image fill top */
+            padding: 24px;
             border-top: 1px solid var(--border-subtle);
             padding-bottom: calc(30px + var(--safe-area-bottom));
             position: relative;
-            display: flex;
-            flex-direction: column;
-            max-height: 90vh;
-            /* Limit height */
         }
 
         .modal-content::before {
@@ -482,26 +475,28 @@
             transform: translateX(-50%);
             width: 40px;
             height: 5px;
-            background: rgba(255, 255, 255, 0.5);
-            /* More visible on image */
+            background: var(--bg-surface);
             border-radius: 100px;
-            z-index: 10;
+        }
+
+        .modal-header {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            margin-top: 10px;
         }
 
         .modal-img-wrap {
-            width: 100%;
-            height: 40vh;
-            /* 40% of screen height, or 70% of logical card space */
-            min-height: 250px;
-            border-radius: 24px 24px 0 0;
+            width: 80px;
+            height: 80px;
+            border-radius: 16px;
             background: var(--bg-surface);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 60px;
+            font-size: 40px;
             flex-shrink: 0;
             overflow: hidden;
-            position: relative;
         }
 
         .modal-img-wrap img {
@@ -510,45 +505,21 @@
             object-fit: cover;
         }
 
-        .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .modal-header {
-            display: block;
-            /* Stack title and price */
-            margin-bottom: 20px;
-            margin-top: 0;
-        }
-
         .modal-info {
             flex: 1;
         }
 
         .modal-title {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 700;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             line-height: 1.3;
         }
 
         .modal-price-tag {
-            font-size: 24px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--accent-blue);
-            margin-bottom: 16px;
-            display: block;
-        }
-
-        /* Action Row: Quantity + Add Button */
-        .action-row {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            margin-top: auto;
-            /* Push to bottom */
         }
 
         .qty-control {
@@ -558,11 +529,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 20px;
             border: 1px solid var(--border-subtle);
-            flex: 1;
-            /* Take remaining space */
-            max-width: 160px;
-            /* But not too wide */
         }
 
         .qty-action {
@@ -587,28 +555,20 @@
         .qty-display {
             font-size: 18px;
             font-weight: 700;
-            width: 40px;
+            width: 80px;
             text-align: center;
         }
 
         .modal-add {
-            flex: 2;
-            /* Take twice as much space as qty */
+            width: 100%;
             padding: 16px;
-            background: var(--success);
-            /* GREEN BUTTON */
+            background: var(--accent-blue);
             color: white;
             border: none;
             border-radius: 16px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            height: 58px;
-            /* Match qty control height approx */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
 
         .modal-add:active {
@@ -616,7 +576,7 @@
             transform: scale(0.99);
         }
 
-        /* КОРЗИНА И ОФОРМЛЕНИЕ */
+        /* РљРћР Р—РРќРђ Р РћР¤РћР РњР›Р•РќРР• */
         .cart-total-float {
             position: fixed;
             bottom: calc(70px + var(--safe-area-bottom));
@@ -662,7 +622,7 @@
             line-height: 1.4;
         }
 
-        /* ИСТОРИЯ ЗАКАЗОВ - FULL */
+        /* РРЎРўРћР РРЇ Р—РђРљРђР—РћР’ - FULL */
         .order-card {
             background: var(--bg-card);
             border-radius: 16px;
@@ -734,10 +694,10 @@
 
 <body>
 
-    <!-- КАТАЛОГ -->
+    <!-- РљРђРўРђР›РћР“ -->
     <div class="view active" id="view-catalog">
         <div class="section-header">
-            <!-- Кнопка НАЗАД -->
+            <!-- РљРЅРѕРїРєР° РќРђР—РђР” -->
             <button class="header-back-btn" id="catalog-back-btn" onclick="selectCategory('all')"
                 style="display: none;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -745,13 +705,13 @@
                 </svg>
             </button>
             <!-- RENAMED FROM MENU TO CATEGORIES -->
-            <h2 class="section-title" id="products-title">Категории товаров</h2>
+            <h2 class="section-title" id="products-title">РљР°С‚РµРіРѕСЂРёРё С‚РѕРІР°СЂРѕРІ</h2>
             <div style="width: 40px;"></div>
         </div>
 
-        <!-- ХИТЫ ПРОДАЖ - MOVED TO TOP -->
+        <!-- РҐРРўР« РџР РћР”РђР– - MOVED TO TOP -->
         <div class="hits-section" id="hits-section">
-            <div class="hits-header">🔥 Хиты продаж</div>
+            <div class="hits-header">рџ”Ґ РҐРёС‚С‹ РїСЂРѕРґР°Р¶</div>
             <div class="hits-scroll" id="hits-container">
                 <!-- JS Inject -->
             </div>
@@ -759,30 +719,30 @@
 
         <div class="search-bar">
             <div class="search-Wrapper">
-                <div class="search-icon-overlay">🔍</div>
-                <input type="text" id="search-input" placeholder="Поиск (лосось, креветки...)"
+                <div class="search-icon-overlay">рџ”Ќ</div>
+                <input type="text" id="search-input" placeholder="РџРѕРёСЃРє (Р»РѕСЃРѕСЃСЊ, РєСЂРµРІРµС‚РєРё...)"
                     oninput="renderProducts()">
             </div>
         </div>
 
-        <!-- КАТЕГОРИИ -->
+        <!-- РљРђРўР•Р“РћР РР -->
         <div class="categories-grid" id="categories-grid">
             <!-- JS Inject -->
         </div>
 
-        <!-- СПИСОК ТОВАРОВ -->
+        <!-- РЎРџРРЎРћРљ РўРћР’РђР РћР’ -->
         <div class="products-list" id="products-list">
             <!-- JS Inject -->
         </div>
 
-        <!-- Плавающая кнопка корзины -->
+        <!-- РџР»Р°РІР°СЋС‰Р°СЏ РєРЅРѕРїРєР° РєРѕСЂР·РёРЅС‹ -->
         <div class="cart-total-float" id="cart-float-btn" style="display: none;" onclick="switchView('cart')">
-            <span id="float-qty">🛒 0</span>
-            <span id="float-sum">0 ₽</span>
+            <span id="float-qty">рџ›’ 0</span>
+            <span id="float-sum">0 в‚Ѕ</span>
         </div>
     </div>
 
-    <!-- КОРЗИНА -->
+    <!-- РљРћР Р—РРќРђ -->
     <div class="view" id="view-cart">
         <div class="section-header">
             <button class="header-back-btn" onclick="switchView('catalog')">
@@ -790,7 +750,7 @@
                     <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </button>
-            <h2 class="section-title">Корзина</h2>
+            <h2 class="section-title">РљРѕСЂР·РёРЅР°</h2>
             <div style="width: 40px;"></div>
         </div>
 
@@ -801,41 +761,41 @@
         <div class="container">
             <!-- DISCLAIMER -->
             <div class="disclaimer-box">
-                ℹ️ <b>Обратите внимание:</b><br>
-                Итоговая сумма может измениться после взвешивания товаров администратором. Мы свяжемся с вами для
-                подтверждения.
+                в„№пёЏ <b>РћР±СЂР°С‚РёС‚Рµ РІРЅРёРјР°РЅРёРµ:</b><br>
+                РС‚РѕРіРѕРІР°СЏ СЃСѓРјРјР° РјРѕР¶РµС‚ РёР·РјРµРЅРёС‚СЊСЃСЏ РїРѕСЃР»Рµ РІР·РІРµС€РёРІР°РЅРёСЏ С‚РѕРІР°СЂРѕРІ Р°РґРјРёРЅРёСЃС‚СЂР°С‚РѕСЂРѕРј. РњС‹ СЃРІСЏР¶РµРјСЃСЏ СЃ РІР°РјРё РґР»СЏ
+                РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ.
             </div>
             <br>
-            <button class="modal-add" id="checkout-btn" onclick="goToCheckout()" style="display: none;">Оформить
-                заказ</button>
+            <button class="modal-add" id="checkout-btn" onclick="goToCheckout()" style="display: none;">РћС„РѕСЂРјРёС‚СЊ
+                Р·Р°РєР°Р·</button>
         </div>
     </div>
 
-    <!-- ЗАКАЗЫ -->
+    <!-- Р—РђРљРђР—Р« -->
     <div class="view" id="view-orders">
         <div class="section-header">
-            <h2 class="section-title">История заказов</h2>
+            <h2 class="section-title">РСЃС‚РѕСЂРёСЏ Р·Р°РєР°Р·РѕРІ</h2>
         </div>
         <div class="container" id="orders-list">
-            <div style="text-align: center; color: var(--text-muted); margin-top: 40px;">Загрузка...</div>
+            <div style="text-align: center; color: var(--text-muted); margin-top: 40px;">Р—Р°РіСЂСѓР·РєР°...</div>
         </div>
     </div>
 
-    <!-- ПРОФИЛЬ -->
+    <!-- РџР РћР¤РР›Р¬ -->
     <div class="view" id="view-profile">
         <div class="section-header">
-            <h2 class="section-title">Профиль</h2>
+            <h2 class="section-title">РџСЂРѕС„РёР»СЊ</h2>
         </div>
         <div class="container">
             <div class="category-card" style="height: auto; align-items: center; margin-bottom: 20px;">
-                <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
-                <div style="font-size: 18px; font-weight: 700;" id="profile-name">Гость</div>
+                <div style="font-size: 40px; margin-bottom: 10px;">рџ‘¤</div>
+                <div style="font-size: 18px; font-weight: 700;" id="profile-name">Р“РѕСЃС‚СЊ</div>
                 <div style="color: var(--text-muted); font-size: 13px;" id="profile-id">ID: --</div>
             </div>
         </div>
     </div>
 
-    <!-- ОФОРМЛЕНИЕ -->
+    <!-- РћР¤РћР РњР›Р•РќРР• -->
     <div class="view" id="view-checkout">
         <div class="section-header">
             <button class="header-back-btn" onclick="switchView('cart')">
@@ -843,87 +803,87 @@
                     <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </button>
-            <h2 class="section-title">Оформление</h2>
+            <h2 class="section-title">РћС„РѕСЂРјР»РµРЅРёРµ</h2>
             <div style="width: 40px;"></div>
         </div>
         <div class="container">
             <div style="margin-bottom: 16px;">
-                <label style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">Имя
-                    получателя</label>
+                <label style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">РРјСЏ
+                    РїРѕР»СѓС‡Р°С‚РµР»СЏ</label>
                 <input type="text" id="checkout-name"
                     style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--border-subtle); background:var(--bg-surface); color:white; outline:none;">
             </div>
 
             <div style="margin-bottom: 16px;">
                 <label
-                    style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">Телефон</label>
+                    style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">РўРµР»РµС„РѕРЅ</label>
                 <input type="tel" id="checkout-phone"
                     style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--border-subtle); background:var(--bg-surface); color:white; outline:none;"
                     placeholder="+7">
             </div>
 
             <div style="margin-bottom: 20px;">
-                <label style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">Способ
-                    получения</label>
+                <label style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">РЎРїРѕСЃРѕР±
+                    РїРѕР»СѓС‡РµРЅРёСЏ</label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
                     <button class="qty-action"
                         style="width:100%; height: auto; padding: 12px; font-size: 13px; font-weight: 600; border-radius: 12px;"
-                        id="btn-pickup" onclick="setDelivery('pickup')">Самовывоз</button>
+                        id="btn-pickup" onclick="setDelivery('pickup')">РЎР°РјРѕРІС‹РІРѕР·</button>
                     <button class="qty-action"
                         style="width:100%; height: auto; padding: 12px; font-size: 13px; font-weight: 600; border-radius: 12px;"
-                        id="btn-delivery" onclick="setDelivery('delivery')">Доставка</button>
+                        id="btn-delivery" onclick="setDelivery('delivery')">Р”РѕСЃС‚Р°РІРєР°</button>
                 </div>
             </div>
 
             <div id="address-block" style="margin-bottom: 16px; display: none;">
-                <label style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">Адрес
-                    доставки</label>
+                <label style="display: block; color: var(--text-muted); font-size: 12px; margin-bottom: 6px;">РђРґСЂРµСЃ
+                    РґРѕСЃС‚Р°РІРєРё</label>
                 <input type="text" id="checkout-address"
                     style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--border-subtle); background:var(--bg-surface); color:white; outline:none;"
-                    placeholder="Улица, дом, квартира">
+                    placeholder="РЈР»РёС†Р°, РґРѕРј, РєРІР°СЂС‚РёСЂР°">
             </div>
 
             <button class="modal-add" style="margin-top: 10px; background: var(--success);"
-                onclick="submitOrder()">Подтвердить заказ</button>
-            <div style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 12px;">Оплата после
-                согласования с менеджером</div>
+                onclick="submitOrder()">РџРѕРґС‚РІРµСЂРґРёС‚СЊ Р·Р°РєР°Р·</button>
+            <div style="text-align: center; font-size: 11px; color: var(--text-muted); margin-top: 12px;">РћРїР»Р°С‚Р° РїРѕСЃР»Рµ
+                СЃРѕРіР»Р°СЃРѕРІР°РЅРёСЏ СЃ РјРµРЅРµРґР¶РµСЂРѕРј</div>
         </div>
     </div>
 
-    <!-- МОДАЛКА (ВЫБОР ВЕСА) -->
+    <!-- РњРћР”РђР›РљРђ (Р’Р«Р‘РћР  Р’Р•РЎРђ) -->
     <div class="product-modal" id="product-modal" onclick="if(event.target===this) closeModal()">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-img-wrap" id="modal-img-wrap">🐟</div>
+                <div class="modal-img-wrap" id="modal-img-wrap">рџђџ</div>
                 <div class="modal-info">
-                    <div class="modal-title" id="modal-title">Название</div>
-                    <div class="modal-price-tag" id="modal-price">1000 ₽</div>
+                    <div class="modal-title" id="modal-title">РќР°Р·РІР°РЅРёРµ</div>
+                    <div class="modal-price-tag" id="modal-price">1000 в‚Ѕ</div>
                 </div>
             </div>
 
             <div class="qty-control">
-                <button class="qty-action" onclick="changeQty(-1)">−</button>
-                <div class="qty-display" id="modal-qty">1 кг</div>
+                <button class="qty-action" onclick="changeQty(-1)">в€’</button>
+                <div class="qty-display" id="modal-qty">1 РєРі</div>
                 <button class="qty-action" onclick="changeQty(1)">+</button>
             </div>
 
-            <button class="modal-add" onclick="addToCartModal()">Добавить в корзину</button>
+            <button class="modal-add" onclick="addToCartModal()">Р”РѕР±Р°РІРёС‚СЊ РІ РєРѕСЂР·РёРЅСѓ</button>
         </div>
     </div>
 
     <!-- Nav -->
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="switchView('catalog')" data-view="catalog">
-            <span class="nav-icon">🏠</span><span>Меню</span>
+            <span class="nav-icon">рџЏ </span><span>РњРµРЅСЋ</span>
         </div>
         <div class="nav-item" onclick="switchView('cart')" data-view="cart">
-            <span class="nav-icon">🛒</span><span>Корзина</span>
+            <span class="nav-icon">рџ›’</span><span>РљРѕСЂР·РёРЅР°</span>
         </div>
         <div class="nav-item" onclick="switchView('orders')" data-view="orders">
-            <span class="nav-icon">📜</span><span>Заказы</span>
+            <span class="nav-icon">рџ“њ</span><span>Р—Р°РєР°Р·С‹</span>
         </div>
         <div class="nav-item" onclick="switchView('profile')" data-view="profile">
-            <span class="nav-icon">👤</span><span>Профиль</span>
+            <span class="nav-icon">рџ‘¤</span><span>РџСЂРѕС„РёР»СЊ</span>
         </div>
     </nav>
 
@@ -942,22 +902,22 @@
 
         // STATIC CONFIG - REQUESTED CATEGORIES
         const CAT_CONFIG = {
-            'fish': { icon: '🐟', name: 'Рыба' },
-            'caviar': { icon: '🍣', name: 'Икра' },
-            'seafood': { icon: '🦐', name: 'Морепродукты' },
-            'grocery': { icon: '🥫', name: 'Бакалея' },
-            'delicacy': { icon: '🥯', name: 'Деликатесы' },
-            'frozen': { icon: '❄️', name: 'Заморозка' },
-            'semi': { icon: '🥟', name: 'Полуфабрикаты' },
-            'other': { icon: '🍽', name: 'Разное' },
-            'all': { icon: '⚓️', name: 'Все товары' }
+            'fish': { icon: 'рџђџ', name: 'Р С‹Р±Р°' },
+            'caviar': { icon: 'рџЌЈ', name: 'РРєСЂР°' },
+            'seafood': { icon: 'рџ¦ђ', name: 'РњРѕСЂРµРїСЂРѕРґСѓРєС‚С‹' },
+            'grocery': { icon: 'рџҐ«', name: 'Р‘Р°РєР°Р»РµСЏ' },
+            'delicacy': { icon: 'рџҐЇ', name: 'Р”РµР»РёРєР°С‚РµСЃС‹' },
+            'frozen': { icon: 'вќ„пёЏ', name: 'Р—Р°РјРѕСЂРѕР·РєР°' },
+            'semi': { icon: 'рџҐџ', name: 'РџРѕР»СѓС„Р°Р±СЂРёРєР°С‚С‹' },
+            'other': { icon: 'рџЌЅ', name: 'Р Р°Р·РЅРѕРµ' },
+            'all': { icon: 'вљ“пёЏ', name: 'Р’СЃРµ С‚РѕРІР°СЂС‹' }
         };
 
         const DEMO_P = [
-            { id: 1, name: 'Стейк Форели', priceperkg: 1890, is_weighted: true, is_hit: true, category: 'fish' },
-            { id: 2, name: 'Креветки 16/20', priceperkg: 1200, is_weighted: false, is_hit: true, category: 'seafood' },
-            { id: 3, name: 'Икра Кеты', priceperkg: 6500, is_weighted: true, is_hit: true, category: 'caviar' },
-            { id: 4, name: 'Пельмени с рыбой', priceperkg: 600, is_weighted: false, is_hit: false, category: 'semi' }
+            { id: 1, name: 'РЎС‚РµР№Рє Р¤РѕСЂРµР»Рё', priceperkg: 1890, is_weighted: true, is_hit: true, category: 'fish' },
+            { id: 2, name: 'РљСЂРµРІРµС‚РєРё 16/20', priceperkg: 1200, is_weighted: false, is_hit: true, category: 'seafood' },
+            { id: 3, name: 'РРєСЂР° РљРµС‚С‹', priceperkg: 6500, is_weighted: true, is_hit: true, category: 'caviar' },
+            { id: 4, name: 'РџРµР»СЊРјРµРЅРё СЃ СЂС‹Р±РѕР№', priceperkg: 600, is_weighted: false, is_hit: false, category: 'semi' }
         ];
 
         // INIT
@@ -979,13 +939,13 @@
             // Code filtering uses 'code' property matching CAT_CONFIG keys or DB codes
             // We map DB ids to these codes if possible, or just use these as static filter tiles
             allCategories = [
-                { code: 'fish', name: 'Рыба' },
-                { code: 'caviar', name: 'Икра' },
-                { code: 'grocery', name: 'Бакалея' },
-                { code: 'seafood', name: 'Морепродукты' },
-                { code: 'delicacy', name: 'Деликатесы' },
-                { code: 'frozen', name: 'Заморозка' },
-                { code: 'semi', name: 'Полуфабрикаты' }
+                { code: 'fish', name: 'Р С‹Р±Р°' },
+                { code: 'caviar', name: 'РРєСЂР°' },
+                { code: 'grocery', name: 'Р‘Р°РєР°Р»РµСЏ' },
+                { code: 'seafood', name: 'РњРѕСЂРµРїСЂРѕРґСѓРєС‚С‹' },
+                { code: 'delicacy', name: 'Р”РµР»РёРєР°С‚РµСЃС‹' },
+                { code: 'frozen', name: 'Р—Р°РјРѕСЂРѕР·РєР°' },
+                { code: 'semi', name: 'РџРѕР»СѓС„Р°Р±СЂРёРєР°С‚С‹' }
             ];
 
             renderCategories();
@@ -1047,7 +1007,7 @@
                 backBtn.style.display = 'none';
                 hits.style.display = 'block';
                 catGrid.style.display = 'grid';
-                title.innerHTML = 'Категории товаров';
+                title.innerHTML = 'РљР°С‚РµРіРѕСЂРёРё С‚РѕРІР°СЂРѕРІ';
             } else {
                 backBtn.style.display = 'flex';
                 hits.style.display = 'none';
@@ -1085,7 +1045,7 @@
             if (q) list = list.filter(p => p.name.toLowerCase().includes(q));
 
             if (!list.length) {
-                listEl.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted)">Товаров пока нет</div>';
+                listEl.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-muted)">РўРѕРІР°СЂРѕРІ РїРѕРєР° РЅРµС‚</div>';
                 return;
             }
 
@@ -1093,17 +1053,17 @@
                 return `
                 <div class="product-item" onclick="openModal(${p.id})">
                     <div class="product-img">
-                         ${p.image_url ? `<img src="${p.image_url}">` : '🐟'}
+                         ${p.image_url ? `<img src="${p.image_url}">` : 'рџђџ'}
                     </div>
                     <div class="product-info">
                         <div class="product-name">
-                            ${p.is_hit && currentCategory === 'all' ? '<span class="hit-badge-inline">ХИТ</span>' : ''}
+                            ${p.is_hit && currentCategory === 'all' ? '<span class="hit-badge-inline">РҐРРў</span>' : ''}
                             ${p.name}
                         </div>
                         <div class="product-meta">
-                            <span class="product-price">${Math.round(p.priceperkg)} ₽</span>
+                            <span class="product-price">${Math.round(p.priceperkg)} в‚Ѕ</span>
                         </div>
-                        <div class="product-unit">за ${p.is_weighted ? '1 кг' : '1 шт'}</div>
+                        <div class="product-unit">Р·Р° ${p.is_weighted ? '1 РєРі' : '1 С€С‚'}</div>
                     </div>
                     <div class="add-btn">+</div>
                 </div>`;
@@ -1119,11 +1079,11 @@
 
             document.getElementById('hits-container').innerHTML = hits.map(p => `
                 <div class="hit-card" onclick="openModal(${p.id})">
-                    <div class="hit-badge">ХИТ</div>
-                    <div class="hit-img">${p.image_url ? `<img src="${p.image_url}">` : '🐟'}</div>
+                    <div class="hit-badge">РҐРРў</div>
+                    <div class="hit-img">${p.image_url ? `<img src="${p.image_url}">` : 'рџђџ'}</div>
                     <div class="hit-content">
                         <div class="hit-name">${p.name}</div>
-                        <div class="hit-price">${Math.round(p.priceperkg)} ₽</div>
+                        <div class="hit-price">${Math.round(p.priceperkg)} в‚Ѕ</div>
                     </div>
                 </div>
             `).join('');
@@ -1135,81 +1095,31 @@
             const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
             const count = cart.length;
             const btn = document.getElementById('cart-float-btn');
-            if (count > 0) { btn.style.display = 'flex'; document.getElementById('float-qty').textContent = `🛒 ${count}`; document.getElementById('float-sum').textContent = Math.round(total) + ' ₽'; }
+            if (count > 0) { btn.style.display = 'flex'; document.getElementById('float-qty').textContent = `рџ›’ ${count}`; document.getElementById('float-sum').textContent = Math.round(total) + ' в‚Ѕ'; }
             else btn.style.display = 'none';
         }
 
         let modalP = null; let qty = 1;
         function openModal(id) {
-            const modal = document.getElementById('product-modal');
-            const modalP = allProducts.find(p => p.id === id);
-
-            // Image fallback
-            const imgC = modalP.image_url ? `<img src="${modalP.image_url}">` : '🐟';
-
-            // Inject NEW HTML structure dynamically
-            modal.innerHTML = `
-            <div class="modal-content" onclick="event.stopPropagation()">
-                <div class="modal-img-wrap">${imgC}</div>
-                
-                <div class="modal-body">
-                    <div class="modal-header">
-                        <div class="modal-title">${modalP.name}</div>
-                        <div class="modal-price-tag">${Math.round(modalP.priceperkg)} ₽ <span style="font-size:14px; font-weight:400; color:var(--text-muted)">/ ${modalP.is_weighted ? '1 кг' : '1 шт'}</span></div>
-                        <div style="font-size:14px; color:var(--text-secondary); line-height:1.4">
-                            ${modalP.description || 'Описание товара отсутствует.'}
-                        </div>
-                    </div>
-
-                    <div class="action-row">
-                        <div class="qty-control">
-                            <button class="qty-action" onclick="changeQty(-1)">−</button>
-                            <div class="qty-display" id="modal-qty">1</div>
-                            <button class="qty-action" onclick="changeQty(1)">+</button>
-                        </div>
-                        <button class="modal-add" onclick="addToCartModal()">
-                            В корзину
-                        </button>
-                    </div>
-                </div>
-            </div>`;
-
-            modal.classList.add('active');
-
-            // Set global state for quantity logic
-            modalPKey = modalP; // We need to store this if changeQty uses it
-            // Actually, existing changeQty uses global 'modalP' variable. 
-            // We need to make sure 'modalP' global variable is set.
-            window.modalP = modalP;
-            window.qty = modalP.is_weighted ? 1.0 : 1;
-
-            // Initial render of qty is already in innerHTML, but let's update strict values
-            document.getElementById('modal-qty').textContent = window.qty + (modalP.is_weighted ? ' кг' : ' шт');
-
+            modalP = allProducts.find(p => p.id === id);
+            if (!modalP) return;
+            qty = modalP.is_weighted ? 1.0 : 1;
+            updateModalUI();
+            document.getElementById('product-modal').classList.add('active');
             if (tg) tg.HapticFeedback.impactOccurred('light');
         }
         function closeModal() { document.getElementById('product-modal').classList.remove('active'); }
         function changeQty(d) {
             const s = modalP.is_weighted ? 0.5 : 1;
             qty = Math.max(s, Math.round((qty + d * s) * 10) / 10);
-
-            // Direct DOM update instead of updateModalUI
-            document.getElementById('modal-qty').textContent = qty + (modalP.is_weighted ? ' кг' : ' шт');
-            // Price update if we want dynamic total price in modal? 
-            // Design says just "Price tag". User didn't ask for total sum in modal, 
-            // but usually it's nice. The new design has unit price in header.
-            // Let's keep unit price static and maybe show total on button? 
-            // "В корзину (1200 ₽)"?
-            // User requested: "под ней выбор количества... а сбоку... добавить в корзину"
-            // Let's keep it simple for now.
-
+            updateModalUI();
             if (tg) tg.HapticFeedback.selectionChanged();
         }
         function updateModalUI() {
             document.getElementById('modal-title').textContent = modalP.name;
-            document.getElementById('modal-price').textContent = Math.round(modalP.priceperkg * qty) + ' ₽';
-            document.getElementById('modal-qty').textContent = qty + (modalP.is_weighted ? ' кг' : ' шт');
-            const imgC = modalP.image_url ? `<img src="${modalP.image_url}">` : '🐟';
+            document.getElementById('modal-price').textContent = Math.round(modalP.priceperkg * qty) + ' в‚Ѕ';
+            document.getElementById('modal-qty').textContent = qty + (modalP.is_weighted ? ' РєРі' : ' С€С‚');
+            const imgC = modalP.image_url ? `<img src="${modalP.image_url}">` : 'рџђџ';
             document.getElementById('modal-img-wrap').innerHTML = imgC;
         }
         function addToCartModal() {
@@ -1222,17 +1132,17 @@
         function renderCartList() {
             const c = document.getElementById('cart-items-container');
             const total = cart.reduce((s, i) => s + (i.price * i.qty), 0);
-            if (!cart.length) { c.innerHTML = '<div style="text-align:center;margin-top:40px;color:var(--text-muted)">Пусто</div>'; document.getElementById('checkout-btn').style.display = 'none'; return; }
+            if (!cart.length) { c.innerHTML = '<div style="text-align:center;margin-top:40px;color:var(--text-muted)">РџСѓСЃС‚Рѕ</div>'; document.getElementById('checkout-btn').style.display = 'none'; return; }
             document.getElementById('checkout-btn').style.display = 'block';
-            document.getElementById('checkout-btn').textContent = `Оформить (~${Math.round(total)} ₽)`;
+            document.getElementById('checkout-btn').textContent = `РћС„РѕСЂРјРёС‚СЊ (~${Math.round(total)} в‚Ѕ)`;
             c.innerHTML = cart.map(i => `
                  <div class="cart-list-item">
-                     <button onclick="rimCart(${i.id})" style="background:none; border:none; color:var(--danger); font-size:20px;">×</button>
+                     <button onclick="rimCart(${i.id})" style="background:none; border:none; color:var(--danger); font-size:20px;">Г—</button>
                      <div style="flex:1">
                          <div style="font-weight:600; font-size:14px;">${i.name}</div>
-                         <div style="color:var(--text-muted); font-size:12px;">${i.qty} ${i.is_weighted ? 'кг' : 'шт'} x ${Math.round(i.price)}</div>
+                         <div style="color:var(--text-muted); font-size:12px;">${i.qty} ${i.is_weighted ? 'РєРі' : 'С€С‚'} x ${Math.round(i.price)}</div>
                      </div>
-                     <div style="font-weight:700; color:var(--accent-blue);">${Math.round(i.price * i.qty)} ₽</div>
+                     <div style="font-weight:700; color:var(--accent-blue);">${Math.round(i.price * i.qty)} в‚Ѕ</div>
                  </div>`).join('');
         }
         function rimCart(id) { cart = cart.filter(i => i.id !== id); updateCart(); renderCartList(); }
@@ -1269,8 +1179,8 @@
         }
         async function submitOrder() {
             const n = document.getElementById('checkout-name').value, ph = document.getElementById('checkout-phone').value, addr = document.getElementById('checkout-address').value;
-            if (!n || !ph) return alert('Введите данные');
-            if (chType === 'delivery' && !addr) return alert('Адрес?');
+            if (!n || !ph) return alert('Р’РІРµРґРёС‚Рµ РґР°РЅРЅС‹Рµ');
+            if (chType === 'delivery' && !addr) return alert('РђРґСЂРµСЃ?');
             localStorage.setItem('un', n); localStorage.setItem('ph', ph);
 
             const body = { user_id: USER_ID, customer_name: n, customer_phone: ph, delivery_method: chType, delivery_address: addr, payment_method: 'card', items: cart.map(i => ({ product_id: i.id, quantity: i.qty })) };
@@ -1282,7 +1192,7 @@
                 } else if (tg) tg.sendData(JSON.stringify(body));
             } catch (e) { if (tg) tg.sendData(JSON.stringify(body)); }
 
-            alert('Заказ отправлен! Менеджер свяжется с вами.');
+            alert('Р—Р°РєР°Р· РѕС‚РїСЂР°РІР»РµРЅ! РњРµРЅРµРґР¶РµСЂ СЃРІСЏР¶РµС‚СЃСЏ СЃ РІР°РјРё.');
             cart = []; updateCart(); switchView('catalog');
         }
 
@@ -1295,36 +1205,36 @@
 
                 // MOCK for now as requested by user feedback to see "Full Orders"
                 const mockOrders = [
-                    { id: 105, date: '05.02.2026', total: 4500, status: 'new', items: [{ name: 'Стейк Семги', q: 2, p: 2100 }, { name: 'Соус', q: 1, p: 300 }] },
-                    { id: 98, date: '01.02.2026', total: 1200, status: 'done', items: [{ name: 'Креветки', q: 1, p: 1200 }] }
+                    { id: 105, date: '05.02.2026', total: 4500, status: 'new', items: [{ name: 'РЎС‚РµР№Рє РЎРµРјРіРё', q: 2, p: 2100 }, { name: 'РЎРѕСѓСЃ', q: 1, p: 300 }] },
+                    { id: 98, date: '01.02.2026', total: 1200, status: 'done', items: [{ name: 'РљСЂРµРІРµС‚РєРё', q: 1, p: 1200 }] }
                 ];
 
                 el.innerHTML = mockOrders.map(o => `
                     <div class="order-card">
                         <div class="order-header">
-                            <span>Заказ #${o.id}</span>
+                            <span>Р—Р°РєР°Р· #${o.id}</span>
                             <span style="color:var(--text-muted)">${o.date}</span>
                         </div>
                         <div class="order-body">
                             ${o.items.map(i => `
                                 <div class="order-item-row">
                                     <span>${i.name} x${i.q}</span>
-                                    <span>${i.p * i.q} ₽</span>
+                                    <span>${i.p * i.q} в‚Ѕ</span>
                                 </div>
                             `).join('')}
                         </div>
                         <div class="order-footer">
-                            <span class="order-status status-new">${o.status === 'new' ? 'Ожидает' : 'Выполнен'}</span>
+                            <span class="order-status status-new">${o.status === 'new' ? 'РћР¶РёРґР°РµС‚' : 'Р’С‹РїРѕР»РЅРµРЅ'}</span>
                             <div style="display:flex; gap:10px; align-items:center;">
-                                <span style="font-weight:700">${o.total} ₽</span>
-                                <button class="repeat-btn">Повторить</button>
+                                <span style="font-weight:700">${o.total} в‚Ѕ</span>
+                                <button class="repeat-btn">РџРѕРІС‚РѕСЂРёС‚СЊ</button>
                             </div>
                         </div>
                     </div>
                 `).join('');
 
             } catch (e) {
-                el.innerHTML = 'Ошибка загрузки истории';
+                el.innerHTML = 'РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё РёСЃС‚РѕСЂРёРё';
             }
         }
 

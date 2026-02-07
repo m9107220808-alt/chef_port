@@ -1,506 +1,985 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔧 Админ-панель Chef Port</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chef Port Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg-color: #0f172a;
+            --bg-card: #1e293b;
+            --bg-surface: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: rgba(255, 255, 255, 0.1);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            color: #333;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-primary);
+            padding-bottom: 80px;
         }
 
         .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
+            padding: 16px;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
             z-index: 100;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .header h1 {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-
-        .header p {
-            font-size: 12px;
-            opacity: 0.9;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: 20px auto;
-            padding: 0 15px;
-        }
-
-        .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .menu-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            border: 2px solid transparent;
-        }
-
-        .menu-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-            border-color: #2a5298;
-        }
-
-        .menu-card-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-        }
-
-        .menu-card-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .menu-card-count {
+            margin: 0;
             font-size: 20px;
-            font-weight: 700;
-            color: #2a5298;
-            margin-top: 8px;
         }
 
-        .orders-section {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .orders-section h2 {
-            color: #1e3c72;
-            margin-bottom: 15px;
-            font-size: 18px;
-            border-bottom: 2px solid #2a5298;
-            padding-bottom: 10px;
-        }
-
-        .order-item {
+        /* NAVIGATION TABS */
+        .nav-tabs {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            border-left: 4px solid #2a5298;
-            transition: all 0.2s;
-        }
-
-        .order-item:hover {
-            background: #e8ecf1;
-        }
-
-        .order-info {
-            flex: 1;
-        }
-
-        .order-id {
-            font-weight: 700;
-            color: #1e3c72;
-            font-size: 14px;
-        }
-
-        .order-customer {
-            font-size: 12px;
-            color: #666;
-            margin-top: 2px;
-        }
-
-        .order-price {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2a5298;
-            margin-right: 15px;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
+            background: var(--bg-surface);
+            padding: 4px;
             border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-
-        .status-new {
-            background: #ffd93d;
-            color: #333;
-        }
-
-        .status-confirmed {
-            background: #6bcf7f;
-            color: white;
-        }
-
-        .status-cooking {
-            background: #ff9ff3;
-            color: white;
-        }
-
-        .status-delivering {
-            background: #54a0ff;
-            color: white;
-        }
-
-        .status-completed {
-            background: #48dbfb;
-            color: white;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 8px;
             margin-top: 12px;
         }
 
-        .btn {
+        .nav-tab {
             flex: 1;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            color: var(--text-secondary);
             font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
             transition: all 0.2s;
         }
 
-        .btn-primary {
-            background: #2a5298;
+        .nav-tab.active {
+            background: var(--accent-blue);
             color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
 
-        .btn-primary:hover {
-            background: #1e3c72;
+        /* VIEWS */
+        .view-section {
+            display: none;
+            padding: 16px;
         }
 
-        .btn-secondary {
-            background: #e8ecf1;
-            color: #1e3c72;
-            border: 1px solid #2a5298;
+        .view-section.active {
+            display: block;
         }
 
-        .btn-secondary:hover {
-            background: #d0d8e3;
-        }
-
-        .btn-danger {
-            background: #ff6b6b;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #ff5252;
-        }
-
+        /* ORDERS STYLES (Existing) */
         .stats-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
         .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
+            background: var(--bg-card);
+            padding: 10px;
+            border-radius: 12px;
             text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
         }
 
-        .stat-label {
-            font-size: 11px;
-            color: #666;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 28px;
+        .stat-val {
+            font-size: 16px;
             font-weight: 700;
-            color: #2a5298;
+            color: var(--accent-blue);
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
+        .stat-lbl {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
         }
 
-        .empty-state-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
+        .orders-filter {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
         }
 
-        .loading {
-            text-align: center;
-            padding: 20px;
-            color: white;
-        }
-
-        .error {
-            background: #ff6b6b;
-            color: white;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 20px;
-            color: rgba(255,255,255,0.7);
+        .filter-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 8px;
             font-size: 12px;
-            margin-top: 30px;
-        }
-
-        .refresh-btn {
-            background: white;
-            color: #2a5298;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
             cursor: pointer;
-            font-weight: 600;
-            margin-top: 15px;
-            width: 100%;
-            transition: all 0.2s;
+            text-align: center;
         }
 
-        .refresh-btn:hover {
-            background: #e8ecf1;
+        .filter-btn.active {
+            border-color: var(--accent-blue);
+            color: var(--accent-blue);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .filter-count {
+            font-weight: 700;
+            display: block;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .order-card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .order-head {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .order-body {
+            padding: 12px;
+        }
+
+        .order-actions {
+            padding: 8px;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            border-top: 1px solid var(--border);
+        }
+
+        .btn-status {
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: none;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        /* PRODUCTS STYLES (New) */
+        .prod-tools {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-family: inherit;
+        }
+
+        .add-btn {
+            background: var(--success);
+            width: 42px;
+            border-radius: 10px;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .prod-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .prod-item {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 10px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            border: 1px solid var(--border);
+        }
+
+        .prod-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            background: var(--bg-surface);
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .prod-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .prod-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .prod-meta {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .prod-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            padding: 4px;
+            opacity: 0.7;
+        }
+
+        .btn-edit {
+            color: var(--accent-blue);
+        }
+
+        .btn-del {
+            color: var(--danger);
+        }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            display: none;
+            align-items: flex-end;
+            /* Sheet style */
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .modal-wrap {
+            background: var(--bg-card);
+            width: 100%;
+            max-width: 600px;
+            border-radius: 20px 20px 0 0;
+            padding: 20px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .input,
+        .select,
+        .textarea {
+            width: 100%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+
+        .textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 10px;
+            background: var(--bg-surface);
+            border-radius: 8px;
+        }
+
+        .toggle-label {
+            font-size: 14px;
+        }
+
+        /* Switch */
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #4b5563;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: var(--accent-blue);
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(16px);
+        }
+
+        .img-preview {
+            width: 100%;
+            height: 150px;
+            background: var(--bg-surface);
+            border-radius: 12px;
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            border: 1px dashed var(--border);
+        }
+
+        .img-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .img-placeholder {
+            color: var(--text-secondary);
+            font-size: 12px;
+            pointer-events: none;
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 10px;
+            cursor: pointer;
         }
     </style>
 </head>
+
 <body>
+
     <div class="header">
-        <h1>🔧 Админ-панель Chef Port</h1>
-        <p>Управление заказами и доставкой</p>
+        <h1>🔧 Chef Port Admin</h1>
+        <div class="nav-tabs">
+            <div class="nav-tab active" onclick="switchTab('orders')">Заказы</div>
+            <div class="nav-tab" onclick="switchTab('products')">Товары</div>
+            <div class="nav-tab" onclick="switchTab('categories')">Категории</div>
+        </div>
     </div>
 
-    <div class="container">
-        <div id="message"></div>
-
-        <!-- СТАТИСТИКА -->
-        <div class="stats-grid" id="stats"></div>
-
-        <!-- МЕНЮ -->
-        <div class="menu-grid">
-            <div class="menu-card" onclick="showOrders('new')">
-                <div class="menu-card-icon">🆕</div>
-                <div class="menu-card-title">Новые</div>
-                <div class="menu-card-count" id="count-new">0</div>
-            </div>
-            <div class="menu-card" onclick="showOrders('confirmed')">
-                <div class="menu-card-icon">✅</div>
-                <div class="menu-card-title">Подтверждены</div>
-                <div class="menu-card-count" id="count-confirmed">0</div>
-            </div>
-            <div class="menu-card" onclick="showOrders('cooking')">
-                <div class="menu-card-icon">👨🍳</div>
-                <div class="menu-card-title">В обработке</div>
-                <div class="menu-card-count" id="count-cooking">0</div>
-            </div>
-            <div class="menu-card" onclick="showOrders('delivering')">
-                <div class="menu-card-icon">🚚</div>
-                <div class="menu-card-title">В доставке</div>
-                <div class="menu-card-count" id="count-delivering">0</div>
-            </div>
-            <div class="menu-card" onclick="showOrders('completed')">
-                <div class="menu-card-icon">🎉</div>
-                <div class="menu-card-title">Завершены</div>
-                <div class="menu-card-count" id="count-completed">0</div>
-            </div>
-            <div class="menu-card" onclick="showOrders('cancelled')">
-                <div class="menu-card-icon">❌</div>
-                <div class="menu-card-title">Отменены</div>
-                <div class="menu-card-count" id="count-cancelled">0</div>
-            </div>
+    <!-- ORDERS VIEW -->
+    <div id="view-orders" class="view-section active">
+        <div class="stats-grid" id="stats-container"></div>
+        <div class="orders-filter">
+            <div class="filter-btn active" onclick="filterOrders('new', this)"><span class="filter-count"
+                    id="c-new">0</span>Новые</div>
+            <div class="filter-btn" onclick="filterOrders('confirmed', this)"><span class="filter-count"
+                    id="c-confirmed">0</span>Приняты</div>
+            <div class="filter-btn" onclick="filterOrders('cooking', this)"><span class="filter-count"
+                    id="c-cooking">0</span>В работе</div>
+            <div class="filter-btn" onclick="filterOrders('delivering', this)"><span class="filter-count"
+                    id="c-delivering">0</span>Доставка</div>
+            <div class="filter-btn" onclick="filterOrders('completed', this)"><span class="filter-count"
+                    id="c-completed">0</span>Архив</div>
+            <div class="filter-btn" onclick="filterOrders('cancelled', this)"><span class="filter-count"
+                    id="c-cancelled">0</span>Отмена</div>
         </div>
-
-        <!-- СПИСОК ЗАКАЗОВ -->
-        <div class="orders-section" id="orders-container">
-            <h2>📋 Все заказы</h2>
-            <div id="orders-list"></div>
-        </div>
-
-        <button class="refresh-btn" onclick="loadData()">🔄 Обновить</button>
+        <div id="orders-list"></div>
     </div>
 
-    <div class="footer">
-        <p>🐟 Chef Port © 2026 | Админ-панель</p>
+    <!-- PRODUCTS VIEW -->
+    <div id="view-products" class="view-section">
+        <div class="prod-tools">
+            <input type="text" class="search-input" placeholder="Поиск товара..." oninput="searchProducts(this.value)">
+            <button class="add-btn" onclick="openProductModal()">+</button>
+        </div>
+        <div id="products-list" class="prod-list"></div>
+    </div>
+
+    <!-- CATEGORIES VIEW -->
+    <div id="view-categories" class="view-section">
+        <div class="prod-tools">
+            <button class="add-btn" onclick="openCategoryModal()" style="width:100%">+ Добавить категорию</button>
+        </div>
+        <div id="categories-list" class="prod-list"></div>
+    </div>
+
+    <!-- PRODUCT MODAL -->
+    <div id="product-modal" class="modal">
+        <div class="modal-wrap">
+            <div class="modal-header">
+                <div class="modal-title" id="modal-title">Товар</div>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+
+            <form id="prod-form" onsubmit="saveProduct(event)">
+                <input type="hidden" id="p-id">
+
+                <!-- Image Upload -->
+                <div class="form-group">
+                    <label class="label">Фотография</label>
+                    <div class="img-preview" onclick="document.getElementById('p-file').click()">
+                        <img id="p-img-preview" src="" style="display:none">
+                        <div class="img-placeholder" id="p-img-placeholder">Нажмите для загрузки</div>
+                    </div>
+                    <input type="file" id="p-file" accept="image/*" style="display:none"
+                        onchange="uploadImage(this, 'p')">
+                    <input type="hidden" id="p-image-url">
+                </div>
+
+                <!-- Basic Fields -->
+                <div class="form-group">
+                    <label class="label">Название</label>
+                    <input type="text" class="input" id="p-name" required>
+                </div>
+
+                <div class="form-group" style="display:flex; gap:10px">
+                    <div style="flex:1">
+                        <label class="label">Цена (₽)</label>
+                        <input type="number" class="input" id="p-price" required>
+                    </div>
+                    <div style="flex:1">
+                        <label class="label">Категория</label>
+                        <select class="select" id="p-cat"></select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Описание</label>
+                    <textarea class="textarea" id="p-desc"></textarea>
+                </div>
+
+                <!-- Toggles -->
+                <div class="toggle-row">
+                    <span class="toggle-label">На вес (цена за 1 кг)</span>
+                    <label class="switch">
+                        <input type="checkbox" id="p-weight">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-row">
+                    <span class="toggle-label">Хит продаж 🔥</span>
+                    <label class="switch">
+                        <input type="checkbox" id="p-hit">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="toggle-row">
+                    <span class="toggle-label">В наличии</span>
+                    <label class="switch">
+                        <input type="checkbox" id="p-stock" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Артикул / Код</label>
+                    <input type="text" class="input" id="p-code">
+                </div>
+
+                <div id="delete-btn-wrap" style="margin-top:20px; text-align:center; display:none">
+                    <button type="button" onclick="deleteProduct()"
+                        style="background:none; border:none; color:var(--danger); font-size:14px;">Удалить
+                        товар</button>
+                </div>
+
+                <button type="submit" class="save-btn">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- CATEGORY MODAL -->
+    <div id="category-modal" class="modal">
+        <div class="modal-wrap">
+            <div class="modal-header">
+                <div class="modal-title" id="c-modal-title">Категория</div>
+                <button class="close-btn" onclick="closeCatModal()">×</button>
+            </div>
+
+            <form id="cat-form" onsubmit="saveCategory(event)">
+                <input type="hidden" id="c-id">
+
+                <div class="form-group">
+                    <label class="label">Фотография (Фон)</label>
+                    <div class="img-preview" onclick="document.getElementById('c-file').click()">
+                        <img id="c-img-preview" src="" style="display:none">
+                        <div class="img-placeholder" id="c-img-placeholder">Нажмите для загрузки</div>
+                    </div>
+                    <input type="file" id="c-file" accept="image/*" style="display:none"
+                        onchange="uploadImage(this, 'c')">
+                    <input type="hidden" id="c-image-url">
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Название</label>
+                    <input type="text" class="input" id="c-name" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="label">Иконка (Emoji)</label>
+                    <input type="text" class="input" id="c-icon" placeholder="🐟">
+                </div>
+
+                <div id="c-delete-btn-wrap" style="margin-top:20px; text-align:center; display:none">
+                    <button type="button" onclick="deleteCategory()"
+                        style="background:none; border:none; color:var(--danger); font-size:14px;">Удалить
+                        категорию</button>
+                </div>
+
+                <button type="submit" class="save-btn">Сохранить</button>
+            </form>
+        </div>
     </div>
 
     <script>
-        const API_BASE = 'http://localhost:8000/api';
-        let allOrders = [];
-        let currentFilter = null;
+        const API_BASE = '/api'; // Relative path
 
-        async function loadData() {
+        let orders = [];
+        let products = [];
+        let categories = [];
+        let currentOrderFilter = 'new';
+
+        // INIT
+        async function init() {
+            await Promise.all([loadOrders(), loadCategories(), loadProducts()]);
+            renderStats();
+            filterOrders('new');
+        }
+
+        // TABS
+        function switchTab(tab) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.getElementById('view-' + tab).classList.add('active');
+
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            // Find tab button by text or index. Since we use onclick, event.target works
+            if (event) event.target.classList.add('active');
+        }
+
+        // --- DATA LOADING ---
+        async function loadOrders() {
             try {
-                const response = await fetch(`${API_BASE}/admin/orders`);
-                allOrders = await response.json();
-                
-                updateStats();
-                renderAllOrders();
-            } catch (error) {
-                showError('❌ Ошибка загрузки: ' + error.message);
-            }
+                const r = await fetch(API_BASE + '/admin/orders');
+                orders = await r.json();
+                updateOrderCounts();
+            } catch (e) { console.error(e); }
         }
 
-        function updateStats() {
-            const statuses = ['new', 'confirmed', 'cooking', 'delivering', 'completed', 'cancelled'];
-            let totalRevenue = 0;
-            let totalOrders = 0;
-
-            statuses.forEach(status => {
-                const count = allOrders.filter(o => o.status === status).length;
-                document.getElementById(`count-${status}`).textContent = count;
-            });
-
-            totalOrders = allOrders.length;
-            totalRevenue = allOrders.reduce((sum, o) => sum + o.total, 0);
-
-            const statsContainer = document.getElementById('stats');
-            statsContainer.innerHTML = `
-                <div class="stat-card">
-                    <div class="stat-label">📦 Всего</div>
-                    <div class="stat-value">${totalOrders}</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">💰 Выручка</div>
-                    <div class="stat-value">${totalRevenue.toLocaleString('ru-RU')} ₽</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">📊 Средний</div>
-                    <div class="stat-value">${totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0} ₽</div>
-                </div>
-            `;
+        async function loadProducts() {
+            try {
+                const r = await fetch(API_BASE + '/products/');
+                products = await r.json();
+                renderProducts(products);
+            } catch (e) { console.error(e); }
         }
 
-        function showOrders(status) {
-            currentFilter = status;
-            const filtered = allOrders.filter(o => o.status === status);
-            renderOrders(filtered, `Заказы со статусом: ${status.toUpperCase()}`);
+        async function loadCategories() {
+            try {
+                const r = await fetch(API_BASE + '/categories/');
+                categories = await r.json();
+                // Select for Products
+                const sel = document.getElementById('p-cat');
+                sel.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+                // Render List for Categories Tab
+                renderCategoriesList(categories);
+            } catch (e) { console.error(e); }
         }
 
-        function renderAllOrders() {
-            renderOrders(allOrders, '📋 Все заказы');
-        }
-
-        function renderOrders(orders, title) {
-            const container = document.getElementById('orders-container');
-            const ordersList = document.getElementById('orders-list');
-
-            container.querySelector('h2').textContent = title;
-
-            if (orders.length === 0) {
-                ordersList.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-state-icon">📭</div>
-                        <div>Нет заказов</div>
+        function renderCategoriesList(list) {
+            const container = document.getElementById('categories-list');
+            container.innerHTML = list.map(c => `
+                <div class="prod-item" onclick="openCategoryModal(${c.id})">
+                    <img class="prod-img" src="${c.image_url || '/images/placeholder.jpg'}" onerror="this.src='/images/placeholder.jpg'">
+                    <div class="prod-info">
+                        <div class="prod-name">${c.icon || ''} ${c.name}</div>
                     </div>
-                `;
-                return;
-            }
-
-            ordersList.innerHTML = orders.map(order => `
-                <div class="order-item">
-                    <div class="order-info">
-                        <div class="order-id">📦 Заказ #${order.id}</div>
-                        <div class="order-customer">👤 ${order.name} | 📞 ${order.phone}</div>
-                        <div style="margin-top: 5px; font-size: 12px; color: #999;">📍 ${order.address}</div>
-                    </div>
-                    <div style="text-align: right;">
-                        <div class="order-price">${order.total} ₽</div>
-                        <div class="status-badge status-${order.status}">
-                            ${getStatusText(order.status)}
-                        </div>
-                    </div>
-                </div>
-                <div class="action-buttons">
-                    <button class="btn btn-primary" onclick="updateStatus(${order.id}, 'confirmed')">✅ Подтвердить</button>
-                    <button class="btn btn-secondary" onclick="updateStatus(${order.id}, 'cooking')">👨🍳 В обработку</button>
-                    <button class="btn btn-secondary" onclick="updateStatus(${order.id}, 'delivering')">🚚 В доставку</button>
-                    <button class="btn btn-secondary" onclick="updateStatus(${order.id}, 'completed')">🎉 Завершить</button>
-                    <button class="btn btn-danger" onclick="updateStatus(${order.id}, 'cancelled')">❌ Отменить</button>
+                    <button class="btn-icon btn-edit">✎</button>
                 </div>
             `).join('');
         }
 
-        function getStatusText(status) {
-            const map = {
-                'new': '🆕 Новый',
-                'confirmed': '✅ Подтвержден',
-                'cooking': '👨🍳 Готовится',
-                'delivering': '🚚 В доставке',
-                'completed': '🎉 Завершен',
-                'cancelled': '❌ Отменен'
-            };
-            return map[status] || status;
+        // --- ORDERS LOGIC ---
+        function updateOrderCounts() {
+            ['new', 'confirmed', 'cooking', 'delivering', 'completed', 'cancelled'].forEach(s => {
+                const c = orders.filter(o => o.status === s).length;
+                const el = document.getElementById('c-' + s);
+                if (el) el.textContent = c;
+            });
+            renderStats();
+            if (document.getElementById('view-orders').classList.contains('active')) filterOrders(currentOrderFilter);
         }
 
-        async function updateStatus(orderId, newStatus) {
-            try {
-                const response = await fetch(`${API_BASE}/admin/orders/${orderId}/status`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ status: newStatus })
-                });
+        function renderStats() {
+            // Simplified stats
+            const total = orders.length;
+            const rev = orders.reduce((s, o) => s + (o.total || 0), 0);
+            document.getElementById('stats-container').innerHTML = `
+                <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Всего</div></div>
+                <div class="stat-card"><div class="stat-val">${Math.round(rev / 1000)}k</div><div class="stat-lbl">Выручка</div></div>
+                <div class="stat-card"><div class="stat-val">${total ? Math.round(rev / total) : 0}</div><div class="stat-lbl">Ср.чек</div></div>
+            `;
+        }
 
-                if (response.ok) {
-                    showSuccess(`✅ Статус обновлен на ${getStatusText(newStatus)}`);
-                    loadData();
+        function filterOrders(status, btn) {
+            currentOrderFilter = status;
+            if (btn) {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+
+            const list = orders.filter(o => o.status === status);
+            const container = document.getElementById('orders-list');
+
+            if (!list.length) {
+                container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-secondary)">Нет заказов</div>';
+                return;
+            }
+
+            container.innerHTML = list.map(o => `
+                <div class="order-card">
+                    <div class="order-head">
+                        <span>#${o.id}</span>
+                        <span>${new Date(o.created_at || Date.now()).toLocaleTimeString().slice(0, 5)}</span>
+                    </div>
+                    <div class="order-body">
+                        <div style="margin-bottom:8px"><b>${o.customer_name}</b> <a href="tel:${o.customer_phone}" style="color:var(--accent-blue)">${o.customer_phone}</a></div>
+                        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px">${o.delivery_address || 'Самовывоз'}</div>
+                        <div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:6px; font-size:12px">
+                            ${(o.items || []).map(i => `<div>${i.quantity} x ${i.product?.name || 'Товар'} = ${Math.round((i.price || 0) * i.quantity)}</div>`).join('')}
+                        </div>
+                        <div style="text-align:right; font-weight:700; font-size:16px; margin-top:10px">${o.total} ₽</div>
+                    </div>
+                     <div class="order-actions">
+                        ${status === 'new' ? `<button class="btn-status" style="background:var(--success); color:white" onclick="setStatus(${o.id}, 'confirmed')">Принять</button>` : ''}
+                        ${status === 'confirmed' ? `<button class="btn-status" style="background:var(--accent-blue); color:white" onclick="setStatus(${o.id}, 'cooking')">Готовить</button>` : ''}
+                        ${status === 'cooking' ? `<button class="btn-status" style="background:#fbbf24; color:black" onclick="setStatus(${o.id}, 'delivering')">Курьер</button>` : ''}
+                        ${status === 'delivering' ? `<button class="btn-status" style="background:#10b981; color:white" onclick="setStatus(${o.id}, 'completed')">Вручен</button>` : ''}
+                        <button class="btn-status" style="background:rgba(239, 68, 68, 0.2); color:#ef4444" onclick="setStatus(${o.id}, 'cancelled')">Отмена</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function setStatus(id, s) {
+            if (!confirm('Изменить статус?')) return;
+            await fetch(API_BASE + `/admin/orders/${id}/status`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: s })
+            });
+            loadOrders();
+        }
+
+        // --- PRODUCTS LOGIC ---
+        function renderProducts(list) {
+            const container = document.getElementById('products-list');
+            container.innerHTML = list.map(p => `
+                <div class="prod-item" onclick="openProductModal(${p.id})">
+                    <img class="prod-img" src="${p.image_url || '/images/placeholder.jpg'}" onerror="this.src='/images/placeholder.jpg'">
+                    <div class="prod-info">
+                        <div class="prod-name">${p.name}</div>
+                        <div class="prod-meta">${Math.round(p.priceperkg)} ₽ ${p.is_weighted ? '/ кг' : '/ шт'} • ${p.code || ''}</div>
+                    </div>
+                    <button class="btn-icon btn-edit">✎</button>
+                </div>
+            `).join('');
+        }
+
+        function searchProducts(q) {
+            const term = q.toLowerCase();
+            const filtered = products.filter(p => p.name.toLowerCase().includes(term));
+            renderProducts(filtered);
+        }
+
+        let editingId = null;
+
+        function openProductModal(id = null) {
+            const modal = document.getElementById('product-modal');
+            const form = document.getElementById('prod-form');
+            form.reset();
+
+            editingId = id;
+            if (id) {
+                const p = products.find(x => x.id === id);
+                document.getElementById('modal-title').textContent = 'Редактирование';
+                document.getElementById('p-id').value = p.id;
+                document.getElementById('p-name').value = p.name;
+                document.getElementById('p-price').value = p.priceperkg;
+                document.getElementById('p-desc').value = p.description || '';
+                document.getElementById('p-cat').value = p.categoryid;
+                document.getElementById('p-weight').checked = p.is_weighted;
+                document.getElementById('p-hit').checked = p.is_hit;
+                document.getElementById('p-stock').checked = p.in_stock;
+                document.getElementById('p-code').value = p.code || '';
+
+                document.getElementById('p-image-url').value = p.image_url;
+                if (p.image_url) {
+                    document.getElementById('p-img-preview').src = p.image_url;
+                    document.getElementById('p-img-preview').style.display = 'block';
+                    document.getElementById('p-img-placeholder').style.display = 'none';
                 } else {
-                    showError('❌ Ошибка обновления');
+                    document.getElementById('p-img-preview').style.display = 'none';
+                    document.getElementById('p-img-placeholder').style.display = 'block';
                 }
-            } catch (error) {
-                showError('❌ Ошибка: ' + error.message);
+
+                document.getElementById('delete-btn-wrap').style.display = 'block';
+            } else {
+                document.getElementById('modal-title').textContent = 'Новый товар';
+                document.getElementById('p-image-url').value = '';
+                document.getElementById('p-img-preview').style.display = 'none';
+                document.getElementById('p-img-placeholder').style.display = 'block';
+                document.getElementById('delete-btn-wrap').style.display = 'none';
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('product-modal').classList.remove('active');
+        }
+
+        // --- CATEGORIES LOGIC ---
+        let editingCatId = null;
+        function openCategoryModal(id = null) {
+            const modal = document.getElementById('category-modal');
+            const form = document.getElementById('cat-form');
+            form.reset();
+
+            editingCatId = id;
+            if (id) {
+                const c = categories.find(x => x.id === id);
+                document.getElementById('c-modal-title').textContent = 'Редактирование';
+                document.getElementById('c-id').value = c.id;
+                document.getElementById('c-name').value = c.name;
+                document.getElementById('c-icon').value = c.icon || '';
+                document.getElementById('c-image-url').value = c.image_url || '';
+
+                if (c.image_url) {
+                    document.getElementById('c-img-preview').src = c.image_url;
+                    document.getElementById('c-img-preview').style.display = 'block';
+                    document.getElementById('c-img-placeholder').style.display = 'none';
+                } else {
+                    document.getElementById('c-img-preview').style.display = 'none';
+                    document.getElementById('c-img-placeholder').style.display = 'block';
+                }
+                document.getElementById('c-delete-btn-wrap').style.display = 'block';
+            } else {
+                document.getElementById('c-modal-title').textContent = 'Новая категория';
+                document.getElementById('c-image-url').value = '';
+                document.getElementById('c-img-preview').style.display = 'none';
+                document.getElementById('c-img-placeholder').style.display = 'block';
+                document.getElementById('c-delete-btn-wrap').style.display = 'none';
+            }
+            modal.classList.add('active');
+        }
+        function closeCatModal() { document.getElementById('category-modal').classList.remove('active'); }
+
+        async function saveCategory(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('c-name').value,
+                icon: document.getElementById('c-icon').value,
+                image_url: document.getElementById('c-image-url').value
+            };
+            try {
+                let r;
+                if (editingCatId) {
+                    r = await fetch(API_BASE + '/categories/' + editingCatId, {
+                        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+                    });
+                } else {
+                    r = await fetch(API_BASE + '/categories/', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
+                    });
+                }
+                if (r.ok) { closeCatModal(); loadCategories(); }
+                else alert('Ошибка сохранения');
+            } catch (e) { console.error(e); }
+        }
+
+        async function deleteCategory() {
+            if (!editingCatId || !confirm('Удалить категорию?')) return;
+            await fetch(API_BASE + '/categories/' + editingCatId, { method: 'DELETE' });
+            closeCatModal(); loadCategories();
+        }
+
+        // --- SHARED ---
+        async function uploadImage(input, prefix) {
+            const file = input.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            document.getElementById(prefix + '-img-placeholder').textContent = 'Загрузка...';
+            try {
+                const r = await fetch(API_BASE + '/upload', { method: 'POST', body: formData });
+                const d = await r.json();
+                document.getElementById(prefix + '-image-url').value = d.url;
+                document.getElementById(prefix + '-img-preview').src = d.url;
+                document.getElementById(prefix + '-img-preview').style.display = 'block';
+                document.getElementById(prefix + '-img-placeholder').style.display = 'none';
+            } catch (e) {
+                alert('Ошибка загрузки. Проверьте размер файла.');
+                document.getElementById(prefix + '-img-placeholder').textContent = 'Ошибка!';
             }
         }
 
-        function showError(msg) {
-            const container = document.getElementById('message');
-            container.innerHTML = `<div class="error">${msg}</div>`;
-            setTimeout(() => container.innerHTML = '', 3000);
+        async function saveProduct(e) {
+            e.preventDefault();
+            const data = {
+                name: document.getElementById('p-name').value,
+                priceperkg: parseFloat(document.getElementById('p-price').value),
+                description: document.getElementById('p-desc').value,
+                categoryid: parseInt(document.getElementById('p-cat').value),
+                is_weighted: document.getElementById('p-weight').checked,
+                is_hit: document.getElementById('p-hit').checked,
+                in_stock: document.getElementById('p-stock').checked,
+                image_url: document.getElementById('p-image-url').value,
+                code: document.getElementById('p-code').value // Add code support
+            };
+
+            try {
+                let r;
+                if (editingId) {
+                    r = await fetch(API_BASE + '/products/' + editingId, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                } else {
+                    r = await fetch(API_BASE + '/products/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                }
+
+                if (r.ok) {
+                    closeModal();
+                    loadProducts();
+                } else {
+                    alert('Ошибка сохранения');
+                }
+            } catch (e) { console.error(e); }
         }
 
-        function showSuccess(msg) {
-            const container = document.getElementById('message');
-            container.innerHTML = `<div style="background:#2ecc71;color:white;padding:15px;border-radius:6px;text-align:center;margin-bottom:15px;">${msg}</div>`;
-            setTimeout(() => container.innerHTML = '', 2000);
+        async function deleteProduct() {
+            if (!editingId || !confirm('Удалить товар навсегда?')) return;
+            await fetch(API_BASE + '/products/' + editingId, { method: 'DELETE' });
+            closeModal();
+            loadProducts();
         }
 
-        // Инициализация
-        loadData();
-        setInterval(loadData, 5000); // Обновляем каждые 5 секунд
+        init();
+
     </script>
 </body>
+
 </html>
+```

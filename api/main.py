@@ -61,6 +61,10 @@ IMAGES_DIR = os.path.join(WEB_DIR, "images")
 if os.path.exists(IMAGES_DIR):
     app.mount("/images", StaticFiles(directory=IMAGES_DIR), name="images")
 
+# Подключаем всю папку web для путей вида /web/images/...
+if os.path.exists(WEB_DIR):
+    app.mount("/web", StaticFiles(directory=WEB_DIR), name="web")
+
 @app.get("/products_data.js")
 async def get_products_data_js():
     file_path = os.path.join(WEB_DIR, "products_data.js")
@@ -70,7 +74,8 @@ async def get_products_data_js():
 
 @app.get("/app/client", response_class=HTMLResponse)
 async def get_client_app():
-    return FileResponse(os.path.join(WEB_DIR, "miniapp_v2.html"))
+    return FileResponse(os.path.join(WEB_DIR, "miniapp_client.html"))
+
 
 @app.get("/app/admin", response_class=HTMLResponse)
 async def get_admin_app():
