@@ -490,9 +490,9 @@
 
         .modal-img-wrap {
             width: 100%;
-            height: 40vh;
-            /* 40% of screen height, or 70% of logical card space */
-            min-height: 250px;
+            height: 55vh;
+            /* Increased to 1.4x as requested */
+            min-height: 350px;
             border-radius: 24px 24px 0 0;
             background: var(--bg-surface);
             display: flex;
@@ -728,6 +728,31 @@
 
         .repeat-btn:active {
             background: var(--border-subtle);
+        }
+
+        .modal-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 36px;
+            height: 36px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 20;
+            transition: transform 0.2s;
+        }
+
+        .modal-close-btn:active {
+            transform: scale(0.9);
+            background: rgba(0, 0, 0, 0.7);
         }
     </style>
 </head>
@@ -1150,6 +1175,7 @@
             // Inject NEW HTML structure dynamically
             modal.innerHTML = `
             <div class="modal-content" onclick="event.stopPropagation()">
+                <button class="modal-close-btn" onclick="closeModal()">✕</button>
                 <div class="modal-img-wrap">${imgC}</div>
                 
                 <div class="modal-body">
@@ -1190,18 +1216,13 @@
         }
         function closeModal() { document.getElementById('product-modal').classList.remove('active'); }
         function changeQty(d) {
-            const s = modalP.is_weighted ? 0.5 : 1;
-            qty = Math.max(s, Math.round((qty + d * s) * 10) / 10);
+            if (!window.modalP) return;
+            const s = window.modalP.is_weighted ? 0.5 : 1;
+            window.qty = Math.max(s, Math.round((window.qty + d * s) * 10) / 10);
 
             // Direct DOM update instead of updateModalUI
-            document.getElementById('modal-qty').textContent = qty + (modalP.is_weighted ? ' кг' : ' шт');
-            // Price update if we want dynamic total price in modal? 
-            // Design says just "Price tag". User didn't ask for total sum in modal, 
-            // but usually it's nice. The new design has unit price in header.
-            // Let's keep unit price static and maybe show total on button? 
-            // "В корзину (1200 ₽)"?
-            // User requested: "под ней выбор количества... а сбоку... добавить в корзину"
-            // Let's keep it simple for now.
+            const qEl = document.getElementById('modal-qty');
+            if (qEl) qEl.textContent = window.qty + (window.modalP.is_weighted ? ' кг' : ' шт');
 
             if (tg) tg.HapticFeedback.selectionChanged();
         }
@@ -1213,8 +1234,9 @@
             document.getElementById('modal-img-wrap').innerHTML = imgC;
         }
         function addToCartModal() {
-            const ex = cart.find(i => i.id === modalP.id);
-            if (ex) ex.qty += qty; else cart.push({ ...modalP, price: modalP.priceperkg, qty: qty });
+            if (!window.modalP) return;
+            const ex = cart.find(i => i.id === window.modalP.id);
+            if (ex) ex.qty += window.qty; else cart.push({ ...window.modalP, price: window.modalP.priceperkg, qty: window.qty });
             updateCart(); closeModal();
             if (tg) tg.HapticFeedback.notificationOccurred('success');
         }

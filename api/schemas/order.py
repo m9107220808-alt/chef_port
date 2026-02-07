@@ -20,8 +20,9 @@ class OrderItemCreate(BaseModel):
 class OrderItemResponse(BaseModel):
     """Схема ответа позиции заказа"""
     id: int
-    product_id: int
-    quantity: int
+    productcode: Optional[str] = None
+    name: str
+    quantity: float # Changed from int to float to match model
     price: float
     
     class Config:
@@ -41,16 +42,17 @@ class OrderCreate(BaseModel):
 class OrderResponse(BaseModel):
     """Схема ответа заказа"""
     id: int
-    user_id: int
-    total_amount: float
-    status: OrderStatus
-    delivery_address: str
+    userid: int = Field(..., alias="user_id") # Map model 'userid' to schema 'user_id'
+    total: float = Field(..., alias="total_amount") # Map model 'total' to schema 'total_amount'
+    status: str # Relaxed from OrderStatus enum to str to accept 'new'
+    address: Optional[str] = Field(None, alias="delivery_address") # Map model 'address' to schema 'delivery_address'
     comment: Optional[str] = None
-    payment_id: Optional[str] = None
-    payment_status: Optional[str] = None
-    created_at: datetime
-    updated_at: Optional[datetime] = None
+    paymenttype: Optional[str] = Field(None, alias="payment_method")
+    paymentstatus: Optional[str] = Field(None, alias="payment_status")
+    createdat: datetime = Field(..., alias="created_at")
+    updatedat: Optional[datetime] = Field(None, alias="updated_at")
     items: List[OrderItemResponse] = []
     
     class Config:
         from_attributes = True
+        populate_by_name = True

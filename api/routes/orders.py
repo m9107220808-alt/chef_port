@@ -68,7 +68,8 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
         total_amount += item_price
         
         order_items.append(OrderItem(
-            product_id=item.product_id,
+            productcode=product.code,
+            name=product.name,
             quantity=item.quantity,
             price=price
         ))
@@ -80,10 +81,12 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
     
     # Создаём заказ
     db_order = Order(
-        user_id=order_data.user_id,
-        total_amount=total_amount,
-        delivery_address=delivery_address,
-        comment=order_data.comment,
+        userid=order_data.user_id,
+        total=total_amount,
+        address=delivery_address,
+        deliverytype=order_data.delivery_method,
+        paymenttype=order_data.payment_method,
+        # comment=order_data.comment, # Комментарий пока некуда сохранять в модели
         items=order_items
     )
     
@@ -97,4 +100,25 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
     )
     order = result.scalar_one()
     
-    return order
+    # Manually construct response to avoid Pydantic alias issues
+    return OrderResponse(
+        id=order.id,
+        user_id=order.userid,
+        total_amount=order.total,
+        status=order.status,
+        delivery_address=order.address,
+        comment=None, # Поля comment нет в модели Order
+        payment_method=order.paymenttype,
+        payment_status=order.paymentstatus,
+        created_at=order.createdat,
+        updated_at=order.updatedat,
+        items=[
+            {
+                "id": item.id,
+                "productcode": item.productcode,
+                "name": item.name,
+                "quantity": item.quantity,
+                "price": item.price
+            } for item in order.items
+        ]
+    )
