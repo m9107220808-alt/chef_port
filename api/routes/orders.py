@@ -6,6 +6,7 @@ from typing import List
 
 from api.database import get_db
 from api.models.order import Order, OrderItem
+from api.models.user import User
 from api.models.product import Product
 from api.schemas.order import OrderCreate, OrderResponse
 

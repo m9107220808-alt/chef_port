@@ -40,9 +40,9 @@ def download_image(url, filename):
                     f.write(response.read())
                 return f"/images/products/{filename}"
             else:
-                print(f"Failed to download {url}: {response.status}")
+                print(f"❌ Failed to download {url}: Status {response.status}")
     except Exception as e:
-        print(f"Error downloading {url}: {e}")
+        print(f"❌ Error downloading {url}: {e}")
     return None
 
 def main():
@@ -99,10 +99,9 @@ def main():
         # Скачивание фото
         local_image = None
         if isinstance(photo_url, str) and 'http' in photo_url:
-            # Генерируем имя файла из названия (транслит или hash)
-            safe_name = re.sub(r'[^a-zA-Z0-9]', '_', name)[:20]
-            ext = '.jpg' # Предположим jpg
-            filename = f"{safe_name}_{i}{ext}"
+            # Генерируем простое имя файла на основе ID, чтобы избежать проблем с кодировкой
+            filename = f"product_{i + 100}.jpg"
+            print(f"[{i+100}] Found photo URL for '{name}': {photo_url}")
             local_image = download_image(photo_url, filename)
             
         is_weighted = unit.lower() in ['кг', 'kg']
