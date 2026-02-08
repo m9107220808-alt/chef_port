@@ -666,7 +666,7 @@
         // --- DATA LOADING ---
         async function loadOrders() {
             try {
-                const r = await fetch(API_BASE + '/admin/orders');
+                const r = await fetch(API_BASE + '/orders/'); // Fixed URL
                 orders = await r.json();
                 updateOrderCounts();
             } catch (e) { console.error(e); }
@@ -695,7 +695,18 @@
 
         function renderCategoriesList(list) {
             const container = document.getElementById('categories-list');
-            container.innerHTML = list.map(c => `
+
+            // Add virtual Hits category
+            let html = `
+                <div class="prod-item" onclick="filterHits()" style="border-color:var(--accent-gold)">
+                    <div class="prod-img" style="font-size:30px; display:flex; align-items:center; justify-content:center">🔥</div>
+                    <div class="prod-info">
+                        <div class="prod-name" style="color:var(--accent-gold)">Хиты продаж</div>
+                    </div>
+                </div>
+            `;
+
+            html += list.map(c => `
                 <div class="prod-item" onclick="openCategoryModal(${c.id})">
                     <img class="prod-img" src="${c.image_url || '/images/placeholder.jpg'}" onerror="this.src='/images/placeholder.jpg'">
                     <div class="prod-info">
@@ -704,6 +715,16 @@
                     <button class="btn-icon btn-edit">✎</button>
                 </div>
             `).join('');
+
+            container.innerHTML = html;
+        }
+
+        // --- HITS LOGIC ---
+        function filterHits() {
+            switchTab('products');
+            const hits = products.filter(p => p.is_hit);
+            renderProducts(hits);
+            document.querySelector('.search-input').value = '🔥 Хиты продаж';
         }
 
         // --- ORDERS LOGIC ---
@@ -720,7 +741,7 @@
         function renderStats() {
             // Simplified stats
             const total = orders.length;
-            const rev = orders.reduce((s, o) => s + (o.total || 0), 0);
+            const rev = orders.reduce((s, o) => s + (o.total_amount || o.total || 0), 0); // Use total_amount from API
             document.getElementById('stats-container').innerHTML = `
                 <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Всего</div></div>
                 <div class="stat-card"><div class="stat-val">${Math.round(rev / 1000)}k</div><div class="stat-lbl">Выручка</div></div>
@@ -750,12 +771,16 @@
                         <span>${new Date(o.created_at || Date.now()).toLocaleTimeString().slice(0, 5)}</span>
                     </div>
                     <div class="order-body">
-                        <div style="margin-bottom:8px"><b>${o.customer_name}</b> <a href="tel:${o.customer_phone}" style="color:var(--accent-blue)">${o.customer_phone}</a></div>
+                        # Fix: use o.user_id if needed, check fields
+                        # Removed customer_name access if not present in API response yet, 
+                        # but API returns User ID. We need User info or store name in Order.
+                        # For now, let's display ID and Address
+                        <div style="margin-bottom:8px"><b>Клиент #${o.user_id}</b></div>
                         <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px">${o.delivery_address || 'Самовывоз'}</div>
                         <div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:6px; font-size:12px">
-                            ${(o.items || []).map(i => `<div>${i.quantity} x ${i.product?.name || 'Товар'} = ${Math.round((i.price || 0) * i.quantity)}</div>`).join('')}
+                            ${(o.items || []).map(i => `<div>${i.quantity} x ${i.name || 'Товар'} = ${Math.round((i.price || 0) * i.quantity)}</div>`).join('')}
                         </div>
-                        <div style="text-align:right; font-weight:700; font-size:16px; margin-top:10px">${o.total} ₽</div>
+                        <div style="text-align:right; font-weight:700; font-size:16px; margin-top:10px">${o.total_amount || 0} ₽</div>
                     </div>
                      <div class="order-actions">
                         ${status === 'new' ? `<button class="btn-status" style="background:var(--success); color:white" onclick="setStatus(${o.id}, 'confirmed')">Принять</button>` : ''}
@@ -770,8 +795,8 @@
 
         async function setStatus(id, s) {
             if (!confirm('Изменить статус?')) return;
-            await fetch(API_BASE + `/admin/orders/${id}/status`, {
-                method: 'PUT', headers: { 'Content-Type': 'application/json' },
+            await fetch(API_BASE + `/orders/${id}/status`, { // Fixed URL
+                method: 'PATCH', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: s })
             });
             loadOrders();

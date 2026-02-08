@@ -122,3 +122,26 @@ async def create_order(order_data: OrderCreate, db: AsyncSession = Depends(get_d
             } for item in order.items
         ]
     )
+
+from pydantic import BaseModel
+
+class OrderStatusUpdate(BaseModel):
+    status: str
+
+@router.put("/{order_id}/status", response_model=OrderResponse)
+@router.patch("/{order_id}/status", response_model=OrderResponse)
+async def update_order_status(order_id: int, status_data: OrderStatusUpdate, db: AsyncSession = Depends(get_db)):
+    """Обновить статус заказа"""
+    result = await db.execute(
+        select(Order).options(selectinload(Order.items)).where(Order.id == order_id)
+    )
+    order = result.scalar_one_or_none()
+    
+    if not order:
+        raise HTTPException(status_code=404, detail="Заказ не найден")
+    
+    order.status = status_data.status
+    await db.commit()
+    await db.refresh(order)
+    
+    return order

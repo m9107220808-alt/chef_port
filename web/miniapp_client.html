@@ -966,16 +966,16 @@
         let currentCategory = 'all';
 
         // STATIC CONFIG - REQUESTED CATEGORIES
-        const CAT_CONFIG = {
-            'fish': { icon: '🐟', name: 'Рыба' },
-            'caviar': { icon: '🍣', name: 'Икра' },
-            'seafood': { icon: '🦐', name: 'Морепродукты' },
-            'grocery': { icon: '🥫', name: 'Бакалея' },
-            'delicacy': { icon: '🥯', name: 'Деликатесы' },
-            'frozen': { icon: '❄️', name: 'Заморозка' },
-            'semi': { icon: '🥟', name: 'Полуфабрикаты' },
-            'other': { icon: '🍽', name: 'Разное' },
-            'all': { icon: '⚓️', name: 'Все товары' }
+        // Used only for fallback icons if DB doesn't have them
+        const CAT_ICONS = {
+            'Рыба': '🐟',
+            'Икра': '🍣',
+            'Морепродукты': '🦐',
+            'Бакалея': '🥫',
+            'Деликатесы': '🥯',
+            'Заморозка': '❄️',
+            'Полуфабрикаты': '🥟',
+            'Разное': '🍽'
         };
 
         const DEMO_P = [
@@ -997,37 +997,42 @@
         }
 
         async function init() {
-            if (typeof IMPORTED_PRODUCTS !== 'undefined') allProducts = IMPORTED_PRODUCTS;
-            else allProducts = DEMO_P;
+            // Load Categories from DB
+            await loadCategories();
 
-            // Manual Category List from Feedback
-            // Code filtering uses 'code' property matching CAT_CONFIG keys or DB codes
-            // We map DB ids to these codes if possible, or just use these as static filter tiles
-            allCategories = [
-                { code: 'fish', name: 'Рыба' },
-                { code: 'caviar', name: 'Икра' },
-                { code: 'grocery', name: 'Бакалея' },
-                { code: 'seafood', name: 'Морепродукты' },
-                { code: 'delicacy', name: 'Деликатесы' },
-                { code: 'frozen', name: 'Заморозка' },
-                { code: 'semi', name: 'Полуфабрикаты' }
-            ];
+            // Load Products from DB
+            await loadProducts();
 
+            // Render
             renderCategories();
             renderProducts();
             renderHits();
             updateCart();
 
-            // Fetch Real Data (background)
+            // Load Orders (Real)
+            if (USER_ID) loadOrders();
+        }
+
+        async function loadCategories() {
             try {
-                const [pRes] = await Promise.all([fetch(API_BASE + '/products')]);
-                if (pRes.ok) {
-                    const data = await pRes.json();
-                    if (data.length) allProducts = processProducts(data);
-                    renderProducts();
-                    renderHits();
+                const r = await fetch(API_BASE + '/categories/');
+                if (r.ok) {
+                    allCategories = await r.json();
                 }
-            } catch (e) { console.log('Offline/Demo'); }
+            } catch (e) { console.error('Cats error', e); }
+        }
+
+        async function loadProducts() {
+            try {
+                const r = await fetch(API_BASE + '/products/');
+                if (r.ok) {
+                    allProducts = await r.json();
+                }
+            } catch (e) {
+                console.error('Prods error', e);
+                // Fallback to static if needed
+                if (typeof IMPORTED_PRODUCTS !== 'undefined') allProducts = IMPORTED_PRODUCTS;
+            }
         }
 
         function processProducts(list) {
@@ -1061,14 +1066,14 @@
             window.scrollTo(0, 0);
         }
 
-        function selectCategory(code) {
-            currentCategory = code;
+        function selectCategory(catId) {
+            currentCategory = catId; // now calls with ID or 'all'
             const backBtn = document.getElementById('catalog-back-btn');
             const hits = document.getElementById('hits-section');
             const catGrid = document.getElementById('categories-grid');
             const title = document.getElementById('products-title');
 
-            if (code === 'all') {
+            if (catId === 'all') {
                 backBtn.style.display = 'none';
                 hits.style.display = 'block';
                 catGrid.style.display = 'grid';
@@ -1077,8 +1082,9 @@
                 backBtn.style.display = 'flex';
                 hits.style.display = 'none';
                 catGrid.style.display = 'none';
-                const cfg = CAT_CONFIG[code] || CAT_CONFIG.other;
-                title.innerHTML = `${cfg.icon} ${cfg.name}`;
+
+                const cat = allCategories.find(c => c.id === catId);
+                if (cat) title.innerHTML = `${cat.icon || ''} ${cat.name}`;
             }
             renderProducts();
             window.scrollTo(0, 0);
@@ -1088,10 +1094,13 @@
         function renderCategories() {
             const el = document.getElementById('categories-grid');
             el.innerHTML = allCategories.map(c => {
-                const cfg = CAT_CONFIG[c.code] || CAT_CONFIG.other;
+                const icon = c.icon || CAT_ICONS[c.name] || '📦';
+                // Use image_url (background) if available, or just icon style
+                const bgStyle = c.image_url ? `background-image: url('${c.image_url}'); background-size: cover; background-position: center; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.8);` : '';
+
                 return `
-                <div class="category-card" onclick="selectCategory('${c.code}')">
-                    <div class="category-icon">${cfg.icon}</div>
+                <div class="category-card" onclick="selectCategory(${c.id})" style="${bgStyle}">
+                    ${c.image_url ? '' : `<div class="category-icon">${icon}</div>`}
                     <div class="category-name">${c.name}</div>
                 </div>`;
             }).join('');
@@ -1103,7 +1112,8 @@
 
             // Filter
             if (currentCategory !== 'all') {
-                list = list.filter(p => p.category === currentCategory || (currentCategory === 'other' && !p.category));
+                // Ensure type match (int)
+                list = list.filter(p => p.categoryid == currentCategory);
             }
 
             const q = document.getElementById('search-input').value.toLowerCase();
@@ -1311,42 +1321,46 @@
         // FULL ORDERS HISTORY
         async function loadOrders() {
             const el = document.getElementById('orders-list');
+            el.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:40px">Загрузка...</div>';
+
             try {
-                // If we had a real endpoint with history by user_id, we'd call it.
-                // fetch(API_BASE + '/orders/user/' + USER_ID)
+                // Fetch real orders by user
+                const r = await fetch(API_BASE + '/orders/?user_id=' + USER_ID);
+                if (!r.ok) throw new Error('Failed to load');
+                const orders = await r.json();
 
-                // MOCK for now as requested by user feedback to see "Full Orders"
-                const mockOrders = [
-                    { id: 105, date: '05.02.2026', total: 4500, status: 'new', items: [{ name: 'Стейк Семги', q: 2, p: 2100 }, { name: 'Соус', q: 1, p: 300 }] },
-                    { id: 98, date: '01.02.2026', total: 1200, status: 'done', items: [{ name: 'Креветки', q: 1, p: 1200 }] }
-                ];
+                if (!orders.length) {
+                    el.innerHTML = '<div style="text-align:center; color:var(--text-muted); margin-top:40px">История заказов пуста</div>';
+                    return;
+                }
 
-                el.innerHTML = mockOrders.map(o => `
+                el.innerHTML = orders.map(o => `
                     <div class="order-card">
                         <div class="order-header">
                             <span>Заказ #${o.id}</span>
-                            <span style="color:var(--text-muted)">${o.date}</span>
+                            <span style="color:var(--text-muted)">${new Date(o.created_at).toLocaleDateString()}</span>
                         </div>
                         <div class="order-body">
-                            ${o.items.map(i => `
+                            ${(o.items || []).map(i => `
                                 <div class="order-item-row">
-                                    <span>${i.name} x${i.q}</span>
-                                    <span>${i.p * i.q} ₽</span>
+                                    <span>${i.name} x${i.quantity}</span>
+                                    <span>${Math.round(i.price * i.quantity)} ₽</span>
                                 </div>
                             `).join('')}
                         </div>
                         <div class="order-footer">
-                            <span class="order-status status-new">${o.status === 'new' ? 'Ожидает' : 'Выполнен'}</span>
+                            <span class="order-status status-new">${o.status}</span>
                             <div style="display:flex; gap:10px; align-items:center;">
-                                <span style="font-weight:700">${o.total} ₽</span>
-                                <button class="repeat-btn">Повторить</button>
+                                <span style="font-weight:700">${o.total_amount} ₽</span>
+                                <button class="repeat-btn" onclick="alert('Повтор заказа скоро будет доступен!')">Повторить</button>
                             </div>
                         </div>
                     </div>
                 `).join('');
 
             } catch (e) {
-                el.innerHTML = 'Ошибка загрузки истории';
+                el.innerHTML = '<div style="text-align:center; color:var(--text-muted)">Не удалось загрузить историю</div>';
+                console.error(e);
             }
         }
 
