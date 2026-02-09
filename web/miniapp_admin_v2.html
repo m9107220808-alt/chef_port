@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chef Port Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-surface: rgba(51, 65, 85, 0.8);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass: blur(12px);
+        }
+
+        body {
+            margin: 0; padding: 0; font-family: 'Inter', sans-serif;
+            background: var(--bg-color); color: var(--text-primary);
+            padding-bottom: 80px; background-attachment: fixed; background-size: cover;
+        }
+
+        .header {
+            padding: 16px; background: var(--bg-card);
+            backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 20px; }
+
+        .nav-tabs { display: flex; gap: 8px; overflow-x: auto; padding-top: 12px; }
+        .nav-tab {
+            padding: 8px 16px; background: rgba(255,255,255,0.05);
+            border-radius: 20px; font-size: 14px; white-space: nowrap; cursor: pointer;
+            transition: 0.3s;
+        }
+        .nav-tab.active { background: var(--accent-blue); color: white; }
+
+        .view-section { display: none; padding: 16px; }
+        .view-section.active { display: block; }
+
+        /* Product List */
+        .prod-list { display: grid; gap: 12px; }
+        .prod-item {
+            background: var(--bg-card); padding: 12px; border-radius: 12px;
+            display: flex; gap: 12px; align-items: center; border: 1px solid var(--border);
+        }
+        .prod-img {
+            width: 60px; height: 60px; border-radius: 8px; object-fit: cover; background: #334155;
+        }
+        .prod-info { flex: 1; }
+        .prod-name { font-weight: 500; margin-bottom: 4px; }
+        .prod-meta { font-size: 13px; color: var(--text-secondary); }
+        .btn-edit {
+            width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.1);
+            border: none; color: white; font-size: 18px; cursor: pointer;
+        }
+
+        /* FAB */
+        .fab {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: var(--accent-blue); color: white;
+            border: none; font-size: 24px; box-shadow: 0 4px 12px rgba(59,130,246,0.5);
+            cursor: pointer; z-index: 90; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000;
+            display: none; align-items: flex-end; justify-content: center;
+        }
+        .modal.active { display: flex; animation: fadeUp 0.3s; }
+        @keyframes fadeUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+
+        .modal-wrap {
+            background: #1e293b; width: 100%; height: 95vh;
+            border-radius: 20px 20px 0 0; padding: 20px;
+            overflow-y: auto; position: relative;
+        }
+        
+        /* Updated Compact Header with Actions */
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.2);
+            margin: -20px -20px 16px -20px; border-radius: 20px 20px 0 0;
+            position: sticky; top: -20px; z-index: 10; backdrop-filter: blur(10px);
+        }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .action-btn {
+            padding: 8px 16px; border-radius: 20px; border: none;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-save { background: var(--success); color: white; }
+        .btn-del { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .close-btn { background: none; border: none; color: #fff; font-size: 28px; padding: 0 8px; cursor: pointer;}
+
+        /* Compact Form */
+        .form-group { margin-bottom: 12px; }
+        .label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-secondary); }
+        .input, select, textarea {
+            width: 100%; padding: 10px; background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border); border-radius: 8px;
+            color: white; font-family: inherit; box-sizing: border-box; font-size: 14px;
+        }
+        textarea { resize: vertical; min-height: 60px; }
+
+        /* Compact Image Upload */
+        .img-preview {
+            width: 100%; height: 140px; background: rgba(0,0,0,0.2);
+            border-radius: 12px; margin-bottom: 8px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px dashed var(--border); cursor: pointer; position: relative;
+        }
+        .img-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .img-placeholder { color: var(--text-secondary); font-size: 13px; text-align: center; }
+
+        /* Toggles */
+        .toggle-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px; background: rgba(255,255,255,0.05);
+            border-radius: 10px; margin-bottom: 8px;
+        }
+        .switch {
+            position: relative; display: inline-block; width: 46px; height: 26px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #475569; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 4px; bottom: 4px; background-color: white;
+            transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🔧 Chef Port Admin</h1>
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('orders')">Заказы</div>
+        <div class="nav-tab" onclick="switchTab('products')">Товары</div>
+        <div class="nav-tab" onclick="switchTab('categories')">Категории</div>
+        <div class="nav-tab" onclick="switchTab('design')">Дизайн</div>
+    </div>
+</div>
+
+<!-- ORDERS -->
+<div id="view-orders" class="view-section active">
+    <!-- Placeholder for orders logic -->
+    <div id="stats-container"></div>
+    <div id="orders-list"></div>
+    <div style="text-align:center; padding: 40px; color: var(--text-secondary)">Загрузка заказов...</div>
+</div>
+
+<!-- PRODUCTS -->
+<div id="view-products" class="view-section">
+    <div class="prod-list" id="products-list"></div>
+    <button class="fab" onclick="openProductModal()">+</button>
+</div>
+
+<!-- CATEGORIES -->
+<div id="view-categories" class="view-section">
+    <div class="prod-list" id="Categories-list"></div>
+    <button class="fab" onclick="openCategoryModal()">+</button>
+</div>
+
+<!-- DESIGN -->
+<div id="view-design" class="view-section">
+    <h3>🎨 Настройки дизайна</h3>
+    <p style="color:var(--text-secondary)">Настройки внешнего вида магазина</p>
+    <div class="form-group">
+        <label class="label">Фоновое изображение (URL)</label>
+        <input type="text" class="input" id="design-bg-url">
+    </div>
+    <button class="action-btn btn-save" style="width:100%; justify-content:center" onclick="saveDesign()">Сохранить настройки</button>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="product-modal" class="modal">
+    <div class="modal-wrap">
+        <div class="modal-header">
+            <div class="header-actions">
+                <button type="button" class="action-btn btn-del" id="p-del-btn" onclick="deleteProductWithConfirm()" style="display:none">🗑️ Удалить</button>
+                <button type="button" class="action-btn btn-save" onclick="saveProductWithConfirm()">💾 Сохранить</button>
+            </div>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        
+        <form id="prod-form" onsubmit="return false;">
+            <input type="hidden" id="p-id">
+            
+            <!-- Image Upload -->
+            <div class="img-preview" onclick="document.getElementById('p-file').click()">
+                <img id="p-img-preview" src="" style="display:none">
+                <div class="img-placeholder" id="p-img-placeholder">📸 Нажмите для загрузки фото</div>
+            </div>
+            <input type="file" id="p-file" accept="image/*" style="display:none" onchange="uploadImage(this)">
+            <input type="hidden" id="p-image-url">
+
+            <div class="form-group">
+                <label class="label">Название</label>
+                <input type="text" class="input" id="p-name" required>
+            </div>
+
+            <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div>
+                    <label class="label">Цена (₽)</label>
+                    <input type="number" class="input" id="p-price" required>
+                </div>
+                <div>
+                    <label class="label">Категория</label>
+                    <select class="input" id="p-cat"></select>
+                </div>
+            </div>
+
+            <!-- Toggles Group -->
+            <div style="background:rgba(0,0,0,0.2); border-radius:12px; padding:4px; margin-bottom:12px;">
+                <div class="toggle-row" style="margin:0; background:none; border-bottom:1px solid rgba(255,255,255,0.05)">
+                    <span>Продажа на вес (кг)</span>
+                    <label class="switch"><input type="checkbox" id="p-weight"><span class="slider"></span></label>
+                </div>
+                <div class="toggle-row" style="margin:0; background:none; border-bottom:1px solid rgba(255,255,255,0.05)">
+                    <span>Хит продаж 🔥</span>
+                    <label class="switch"><input type="checkbox" id="p-hit"><span class="slider"></span></label>
+                </div>
+                <!-- Discount -->
+                <div class="toggle-row" style="margin:0; background:none; border-bottom:1px solid rgba(255,255,255,0.05)">
+                    <span>Скидка 🏷️</span>
+                    <label class="switch">
+                        <input type="checkbox" id="p-discount" onchange="toggleDiscountInfo()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div id="discount-info" style="display:none; padding:10px 12px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="font-size:13px; color:var(--text-secondary)">Размер скидки</span>
+                        <span id="discount-val" style="font-weight:bold; color:var(--accent-blue)">10%</span>
+                    </div>
+                    <input type="range" id="p-discount-percent" min="5" max="50" step="5" value="10" 
+                           style="width:100%; accent-color:var(--accent-blue);"
+                           oninput="document.getElementById('discount-val').textContent = this.value + '%'">
+                </div>
+                <div class="toggle-row" style="margin:0; background:none;">
+                    <span>В наличии</span>
+                    <label class="switch"><input type="checkbox" id="p-stock" checked><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="label">Описание</label>
+                <textarea id="p-desc"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label class="label">Артикул / Код</label>
+                <input type="text" class="input" id="p-code">
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    const API_BASE = '/api';
+    let products = [];
+    let categories = [];
+
+    // TABS
+    function switchTab(tab) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById('view-' + tab).classList.add('active');
+        document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+        
+        if (tab === 'products') loadProducts();
+        if (tab === 'categories') loadCategories();
+        if (tab === 'orders') loadOrders();
+    }
+
+    // LOAD DATA
+    async function loadProducts() {
+        try {
+            const [pRes, cRes] = await Promise.all([
+                fetch(API_BASE + '/products'),
+                fetch(API_BASE + '/categories')
+            ]);
+            products = await pRes.json();
+            categories = await cRes.json();
+            renderProducts(products);
+            renderCatSelect();
+        } catch (e) { console.error(e); }
+    }
+    
+    async function loadCategories() {
+        try {
+            const res = await fetch(API_BASE + '/categories');
+            categories = await res.json();
+            const list = document.getElementById('Categories-list');
+            list.innerHTML = categories.map(c => `
+                <div class="prod-item">
+                    <div class="prod-img" style="background-image:url('${c.image_url}'); background-size:cover;"></div>
+                    <div class="prod-info"><div class="prod-name">${c.name}</div></div>
+                    <button class="btn-edit">✎</button>
+                </div>
+            `).join('');
+        } catch (e) { console.error(e); }
+    }
+
+    async function loadOrders() {
+        // Placeholder
+        document.getElementById('view-orders').innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-secondary)">Заказы загружаются...</div>';
+    }
+
+    // RENDER
+    function renderProducts(list) {
+        const el = document.getElementById('products-list');
+        el.innerHTML = list.map(p => `
+            <div class="prod-item" onclick="openProductModal(${p.id})">
+                <img class="prod-img" src="${p.image_url || ''}" onerror="this.style.display='none'">
+                <div class="prod-info">
+                    <div class="prod-name">${p.name}</div>
+                    <div class="prod-meta">${Math.round(p.priceperkg)} ₽ ${p.is_weighted ? '/ кг' : '/ шт'}
+                    ${p.is_hit ? '🔥' : ''} ${p.is_discount ? '🏷️' + p.discount_percent + '%' : ''}</div>
+                </div>
+                <button class="btn-edit">✎</button>
+            </div>
+        `).join('');
+    }
+
+    function renderCatSelect() {
+        const sel = document.getElementById('p-cat');
+        sel.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    }
+
+    // MODAL & ACTIONS
+    function openProductModal(id = null) {
+        const form = document.getElementById('prod-form');
+        form.reset();
+        document.getElementById('p-id').value = id || '';
+        document.getElementById('p-del-btn').style.display = id ? 'flex' : 'none';
+        
+        if (id) {
+            const p = products.find(x => x.id === id);
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-price').value = p.priceperkg;
+            document.getElementById('p-cat').value = p.categoryid;
+            document.getElementById('p-desc').value = p.description || '';
+            document.getElementById('p-code').value = p.code || '';
+            document.getElementById('p-weight').checked = p.is_weighted;
+            document.getElementById('p-hit').checked = p.is_hit;
+            document.getElementById('p-stock').checked = p.in_stock;
+            
+            // Discount
+            document.getElementById('p-discount').checked = p.is_discount || false;
+            document.getElementById('p-discount-percent').value = p.discount_percent || 10;
+            document.getElementById('discount-val').textContent = (p.discount_percent || 10) + '%';
+            
+            // Image
+            document.getElementById('p-image-url').value = p.image_url || '';
+            if (p.image_url) {
+                document.getElementById('p-img-preview').src = p.image_url;
+                document.getElementById('p-img-preview').style.display = 'block';
+                document.getElementById('p-img-placeholder').style.display = 'none';
+            } else {
+                document.getElementById('p-img-preview').style.display = 'none';
+                document.getElementById('p-img-placeholder').style.display = 'block';
+            }
+        } else {
+             document.getElementById('p-img-preview').style.display = 'none';
+             document.getElementById('p-img-placeholder').style.display = 'block';
+        }
+        
+        toggleDiscountInfo();
+        document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('product-modal').classList.remove('active');
+    }
+
+    // New logic for confirmation
+    async function saveProductWithConfirm() {
+        if(!confirm("Сохранить изменения?")) return;
+        
+        const id = document.getElementById('p-id').value;
+        const data = {
+            name: document.getElementById('p-name').value,
+            priceperkg: parseFloat(document.getElementById('p-price').value),
+            categoryid: parseInt(document.getElementById('p-cat').value),
+            description: document.getElementById('p-desc').value,
+            code: document.getElementById('p-code').value,
+            is_weighted: document.getElementById('p-weight').checked,
+            is_hit: document.getElementById('p-hit').checked,
+            in_stock: document.getElementById('p-stock').checked,
+            is_discount: document.getElementById('p-discount').checked,
+            discount_percent: parseInt(document.getElementById('p-discount-percent').value),
+            image_url: document.getElementById('p-image-url').value || null
+        };
+
+        const method = id ? 'PATCH' : 'POST';
+        const url = id ? API_BASE + '/products/' + id : API_BASE + '/products';
+        
+        try {
+            const res = await fetch(url, {
+                method: method, headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            if (res.ok) { closeModal(); loadProducts(); }
+            else alert('Ошибка сохранения');
+        } catch(e) { alert('Ошибка сети'); }
+    }
+    
+    async function deleteProductWithConfirm() {
+        if(!confirm("⚠️ Вы уверены, что хотите удалить этот товар? Это действие необратимо.")) return;
+        
+        const id = document.getElementById('p-id').value;
+        try {
+            await fetch(API_BASE + '/products/' + id, {method:'DELETE'});
+            closeModal(); 
+            loadProducts();
+        } catch(e) { alert('Ошибка удаления'); }
+    }
+
+    function toggleDiscountInfo() {
+        const show = document.getElementById('p-discount').checked;
+        document.getElementById('discount-info').style.display = show ? 'block' : 'none';
+    }
+
+    async function uploadImage(input) {
+        const file = input.files[0];
+        if (!file) return;
+        
+        const formData = new FormData();
+        formData.append('file', file);
+        document.getElementById('p-img-placeholder').textContent = 'Загрузка...';
+        
+        try {
+            const res = await fetch(API_BASE + '/upload/product-image', {method:'POST', body:formData});
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('p-image-url').value = data.url;
+                document.getElementById('p-img-preview').src = data.url;
+                document.getElementById('p-img-preview').style.display = 'block';
+                document.getElementById('p-img-placeholder').style.display = 'none';
+            }
+        } catch(e) { 
+            alert('Ошибка загрузки'); 
+            document.getElementById('p-img-placeholder').textContent = 'Ошибка';
+        }
+    }
+    
+    function saveDesign() { alert('Сохранено!'); }
+
+    // Init Logic
+    function openCategoryModal() { alert('Скоро будет'); }
+    
+    // Start
+    loadProducts();
+</script>
+</body>
+</html>

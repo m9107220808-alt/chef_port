@@ -1,1010 +1,758 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Chef Port Admin</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --bg-color: #0f172a;
-            --bg-card: #1e293b;
-            --bg-surface: #334155;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-surface: rgba(51, 65, 85, 0.8);
             --text-primary: #f8fafc;
             --text-secondary: #94a3b8;
             --accent-blue: #3b82f6;
             --danger: #ef4444;
             --success: #22c55e;
+            --warning: #f59e0b;
             --border: rgba(255, 255, 255, 0.1);
+            --glass: blur(12px);
+            --radius: 20px;
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-color);
-            color: var(--text-primary);
-            padding-bottom: 80px;
+            margin: 0; padding: 0; font-family: 'Inter', sans-serif;
+            background: var(--bg-color); color: var(--text-primary);
+            padding-bottom: 80px; background-attachment: fixed; background-size: cover;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .header {
-            padding: 16px;
-            background: var(--bg-card);
+            padding: 16px; background: var(--bg-card);
+            backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
             border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
+            position: sticky; top: 0; z-index: 100;
         }
+        .header h1 { margin: 0; font-size: 20px; }
 
-        .header h1 {
-            margin: 0;
-            font-size: 20px;
-        }
-
-        /* NAVIGATION TABS */
-        .nav-tabs {
-            display: flex;
-            background: var(--bg-surface);
-            padding: 4px;
-            border-radius: 12px;
-            margin-top: 12px;
-        }
-
+        .nav-tabs { display: flex; gap: 8px; overflow-x: auto; padding-top: 12px; }
         .nav-tab {
-            flex: 1;
-            text-align: center;
-            padding: 8px;
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.2s;
+            padding: 8px 16px; background: rgba(255,255,255,0.05);
+            border-radius: 20px; font-size: 14px; white-space: nowrap; cursor: pointer;
+            transition: 0.3s;
         }
+        .nav-tab.active { background: var(--accent-blue); color: white; }
 
-        .nav-tab.active {
-            background: var(--accent-blue);
-            color: white;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
-        }
+        .view-section { display: none; padding: 16px; }
+        .view-section.active { display: block; }
 
-        /* VIEWS */
-        .view-section {
-            display: none;
-            padding: 16px;
-        }
-
-        .view-section.active {
-            display: block;
-        }
-
-        /* ORDERS STYLES (Existing) */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .stat-card {
-            background: var(--bg-card);
-            padding: 10px;
-            border-radius: 12px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .stat-val {
-            font-size: 16px;
-            font-weight: 700;
-            color: var(--accent-blue);
-        }
-
-        .stat-lbl {
-            font-size: 11px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
-
-        .orders-filter {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        .filter-btn {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .filter-btn.active {
-            border-color: var(--accent-blue);
-            color: var(--accent-blue);
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        .filter-count {
-            font-weight: 700;
-            display: block;
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-
-        .order-card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid var(--border);
+        /* Search Bar */
+        .search-bar {
             margin-bottom: 12px;
-            overflow: hidden;
-        }
-
-        .order-head {
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.03);
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .order-body {
-            padding: 12px;
-        }
-
-        .order-actions {
-            padding: 8px;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            border-top: 1px solid var(--border);
-        }
-
-        .btn-status {
-            padding: 6px 12px;
-            border-radius: 6px;
-            border: none;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        /* PRODUCTS STYLES (New) */
-        .prod-tools {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .search-input {
-            flex: 1;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            color: white;
-            padding: 10px;
-            border-radius: 10px;
-            font-family: inherit;
-        }
-
-        .add-btn {
-            background: var(--success);
-            width: 42px;
-            border-radius: 10px;
-            border: none;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .prod-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .prod-item {
-            background: var(--bg-card);
+            background: rgba(255,255,255,0.05);
             border-radius: 12px;
-            padding: 10px;
-            display: flex;
-            gap: 12px;
-            align-items: center;
+            padding: 8px 12px;
+            display: flex; align-items: center; gap: 8px;
             border: 1px solid var(--border);
         }
+        .search-icon { opacity: 0.5; }
+        #search-input {
+            border: none; background: none; color: white; flex: 1;
+            font-size: 14px; outline: none; padding: 0;
+        }
+        #search-clear {
+            background: none; border: none; color: var(--text-secondary);
+            font-size: 16px; cursor: pointer; padding: 4px;
+            display: none; /* hidden by default */
+        }
 
+        /* Product List */
+        .prod-list { display: grid; gap: 12px; }
+        .prod-item {
+            background: var(--bg-card); padding: 12px; border-radius: 12px;
+            display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--border);
+            position: relative;
+        }
+        .prod-main { display: flex; gap: 12px; align-items: flex-start; }
+        
         .prod-img {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            background: var(--bg-surface);
-            object-fit: cover;
+            width: 70px; height: 70px; border-radius: 12px; object-fit: cover; background: #334155;
             flex-shrink: 0;
         }
-
-        .prod-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .prod-name {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 4px;
-        }
-
-        .prod-meta {
-            font-size: 12px;
-            color: var(--text-secondary);
-        }
-
-        .prod-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-icon {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 4px;
-            opacity: 0.7;
-        }
-
+        .prod-info { flex: 1; min-width: 0; }
+        .prod-name { font-weight: 600; font-size: 15px; margin-bottom: 6px; line-height: 1.3; }
+        
+        .prod-price-box { font-size: 16px; font-weight: 700; color: var(--success); display: flex; gap: 8px; align-items: center; }
+        .old-price { font-size: 13px; color: var(--text-secondary); text-decoration: line-through; font-weight: 400; opacity: 0.7; }
+        
         .btn-edit {
-            color: var(--accent-blue);
+            width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.1);
+            border: none; color: white; font-size: 18px; cursor: pointer; position: absolute; top: 12px; right: 12px;
         }
 
-        .btn-del {
-            color: var(--danger);
+        /* Inline Calculator */
+        .inline-calc {
+            background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+            border: 1px solid var(--border);
+        }
+        .calc-col { display: flex; flex-direction: column; gap: 4px; }
+        .calc-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; }
+        
+        .calc-input-wrap {
+            display: flex; align-items: center; background: rgba(255,255,255,0.05);
+            border-radius: 8px; padding: 4px; border: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .calc-input-wrap:focus-within { border-color: var(--accent-blue); }
+        
+        .calc-input {
+            width: 100%; background: none; border: none; color: white;
+            font-size: 14px; text-align: center; padding: 0; font-weight: 500;
+        }
+        .calc-input:focus { outline: none; }
+        .calc-suffix { font-size: 11px; color: var(--text-secondary); padding-right: 4px; }
+
+        .margin-badge {
+            font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+            display: inline-block; margin-left: 6px; vertical-align: middle;
+        }
+        .margin-green { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .margin-yellow { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .margin-red { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .item-save-btn {
+            grid-column: span 3; margin-top: 4px;
+            background: var(--accent-blue); color: white; border: none;
+            padding: 8px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; display: none; /* hidden by default */
+            animation: fadeIn 0.2s;
+        }
+        @keyframes fadeIn { from{opacity:0; transform:translateY(-5px);} to{opacity:1; transform:translateY(0);} }
+
+        /* FAB */
+        .fab {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: var(--accent-blue); color: white;
+            border: none; font-size: 24px; box-shadow: 0 4px 12px rgba(59,130,246,0.5);
+            cursor: pointer; z-index: 90; display: flex; align-items: center; justify-content: center;
         }
 
-        /* MODAL */
+        /* Modal */
         .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 200;
-            display: none;
-            align-items: flex-end;
-            /* Sheet style */
-            justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000;
+            display: none; align-items: flex-end; justify-content: center;
         }
-
-        .modal.active {
-            display: flex;
-            animation: slideUp 0.3s;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(100%);
-            }
-
-            to {
-                transform: translateY(0);
-            }
-        }
+        .modal.active { display: flex; animation: fadeUp 0.3s; }
+        @keyframes fadeUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
 
         .modal-wrap {
-            background: var(--bg-card);
-            width: 100%;
-            max-width: 600px;
-            border-radius: 20px 20px 0 0;
-            padding: 20px;
-            max-height: 90vh;
-            overflow-y: auto;
+            background: #1e293b; width: 100%; height: 95vh;
+            border-radius: 20px 20px 0 0; padding: 20px;
+            overflow-y: auto; position: relative;
         }
-
+        
         .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.2);
+            margin: -20px -20px 16px -20px; border-radius: 20px 20px 0 0;
+            position: sticky; top: -20px; z-index: 10; backdrop-filter: blur(10px);
+        }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .action-btn {
+            padding: 8px 16px; border-radius: 20px; border: none;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-save { background: var(--success); color: white; }
+        .btn-del { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .close-btn { background: none; border: none; color: #fff; font-size: 28px; padding: 0 8px; cursor: pointer;}
+
+        .form-group { margin-bottom: 12px; }
+        .label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-secondary); }
+        .input, select, textarea {
+            width: 100%; padding: 10px; background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border); border-radius: 8px;
+            color: white; font-family: inherit; box-sizing: border-box; font-size: 14px;
         }
 
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            font-size: 24px;
-            cursor: pointer;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        .label {
-            display: block;
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-bottom: 6px;
-        }
-
-        .input,
-        .select,
-        .textarea {
-            width: 100%;
-            background: var(--bg-surface);
+        /* Smart Pricing Card (Modal) */
+        .pricing-card {
+            background: rgba(255,255,255,0.05);
             border: 1px solid var(--border);
-            color: white;
-            padding: 10px;
-            border-radius: 8px;
-            font-family: inherit;
+            border-radius: var(--radius);
+            padding: 16px; margin-bottom: 16px;
+            backdrop-filter: blur(5px);
         }
-
-        .textarea {
-            resize: vertical;
-            min-height: 80px;
+        .pricing-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 10px; }
+        .pricing-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+        /* .pricing-val { font-weight: 600; width: 60px; text-align: right; } */
+        
+        .range-wrap { flex: 2; display: flex; align-items: center; gap: 8px; }
+        input[type=range] {
+            flex: 1; accent-color: var(--accent-blue); height: 4px; border-radius: 2px;
         }
-
-        .toggle-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding: 10px;
-            background: var(--bg-surface);
-            border-radius: 8px;
+        
+        .final-price-block {
+            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
         }
+        .final-price { font-size: 18px; font-weight: 700; color: var(--success); }
 
-        .toggle-label {
-            font-size: 14px;
-        }
-
-        /* Switch */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 24px;
-        }
-
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #4b5563;
-            transition: .4s;
-            border-radius: 24px;
-        }
-
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-
-        input:checked+.slider {
-            background-color: var(--accent-blue);
-        }
-
-        input:checked+.slider:before {
-            transform: translateX(16px);
-        }
-
+        /* Image Upload */
         .img-preview {
-            width: 100%;
-            height: 150px;
-            background: var(--bg-surface);
-            border-radius: 12px;
-            margin-top: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
-            border: 1px dashed var(--border);
+            width: 100%; height: 140px; background: rgba(0,0,0,0.2);
+            border-radius: 12px; margin-bottom: 16px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px dashed var(--border); cursor: pointer; position: relative;
         }
+        .img-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .img-placeholder { color: var(--text-secondary); font-size: 13px; text-align: center; }
 
-        .img-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        /* Toggles */
+        .toggle-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px; background: rgba(255,255,255,0.05);
+            border-radius: 10px; margin-bottom: 8px;
         }
-
-        .img-placeholder {
-            color: var(--text-secondary);
-            font-size: 12px;
-            pointer-events: none;
+        .switch { position: relative; display: inline-block; width: 46px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #475569; transition: .4s; border-radius: 34px;
         }
-
-        .save-btn {
-            width: 100%;
-            padding: 14px;
-            background: var(--success);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            margin-top: 10px;
-            cursor: pointer;
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 4px; bottom: 4px; background-color: white;
+            transition: .4s; border-radius: 50%;
         }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
     </style>
 </head>
-
 <body>
 
-    <div class="header">
-        <h1>🔧 Chef Port Admin</h1>
-        <div class="nav-tabs">
-            <div class="nav-tab active" onclick="switchTab('orders')">Заказы</div>
-            <div class="nav-tab" onclick="switchTab('products')">Товары</div>
-            <div class="nav-tab" onclick="switchTab('categories')">Категории</div>
-        </div>
+<div class="header">
+    <h1>🔧 Chef Port Admin</h1>
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('orders')">Заказы</div>
+        <div class="nav-tab" onclick="switchTab('products')">Товары</div>
+        <div class="nav-tab" onclick="switchTab('categories')">Категории</div>
+        <div class="nav-tab" onclick="switchTab('design')">Дизайн</div>
+    </div>
+</div>
+
+<div id="view-orders" class="view-section active">
+    <div style="text-align:center; padding: 40px; color: var(--text-secondary)">Загрузка заказов...</div>
+</div>
+
+<div id="view-products" class="view-section">
+    <!-- SEARCH BAR -->
+    <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="search-input" placeholder="Поиск товаров (название, артикул)..." oninput="filterProducts()">
+        <button id="search-clear" onclick="clearSearch()">✕</button>
     </div>
 
-    <!-- ORDERS VIEW -->
-    <div id="view-orders" class="view-section active">
-        <div class="stats-grid" id="stats-container"></div>
-        <div class="orders-filter">
-            <div class="filter-btn active" onclick="filterOrders('new', this)"><span class="filter-count"
-                    id="c-new">0</span>Новые</div>
-            <div class="filter-btn" onclick="filterOrders('confirmed', this)"><span class="filter-count"
-                    id="c-confirmed">0</span>Приняты</div>
-            <div class="filter-btn" onclick="filterOrders('cooking', this)"><span class="filter-count"
-                    id="c-cooking">0</span>В работе</div>
-            <div class="filter-btn" onclick="filterOrders('delivering', this)"><span class="filter-count"
-                    id="c-delivering">0</span>Доставка</div>
-            <div class="filter-btn" onclick="filterOrders('completed', this)"><span class="filter-count"
-                    id="c-completed">0</span>Архив</div>
-            <div class="filter-btn" onclick="filterOrders('cancelled', this)"><span class="filter-count"
-                    id="c-cancelled">0</span>Отмена</div>
-        </div>
-        <div id="orders-list"></div>
-    </div>
+    <div class="prod-list" id="products-list"></div>
+    <button class="fab" onclick="openProductModal()">+</button>
+</div>
 
-    <!-- PRODUCTS VIEW -->
-    <div id="view-products" class="view-section">
-        <div class="prod-tools">
-            <input type="text" class="search-input" placeholder="Поиск товара..." oninput="searchProducts(this.value)">
-            <button class="add-btn" onclick="openProductModal()">+</button>
-        </div>
-        <div id="products-list" class="prod-list"></div>
-    </div>
+<div id="view-categories" class="view-section">
+    <div class="prod-list" id="Categories-list"></div>
+</div>
 
-    <!-- CATEGORIES VIEW -->
-    <div id="view-categories" class="view-section">
-        <div class="prod-tools">
-            <button class="add-btn" onclick="openCategoryModal()" style="width:100%">+ Добавить категорию</button>
-        </div>
-        <div id="categories-list" class="prod-list"></div>
-    </div>
+<div id="view-design" class="view-section">
+    <h3>🎨 Настройки дизайна</h3>
+    <button class="action-btn btn-save" style="width:100%; justify-content:center" onclick="alert('OK')">Сохранить</button>
+</div>
 
-    <!-- PRODUCT MODAL -->
-    <div id="product-modal" class="modal">
-        <div class="modal-wrap">
-            <div class="modal-header">
-                <div class="modal-title" id="modal-title">Товар</div>
-                <button class="close-btn" onclick="closeModal()">×</button>
+<!-- PRODUCT MODAL -->
+<div id="product-modal" class="modal">
+    <div class="modal-wrap">
+        <div class="modal-header">
+            <div class="header-actions">
+                <button type="button" class="action-btn btn-del" id="p-del-btn" onclick="deleteProductWithConfirm()" style="display:none">🗑️</button>
+                <button type="button" class="action-btn btn-save" onclick="saveProductWithConfirm()">💾 Сохранить</button>
+            </div>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        
+        <form id="prod-form" onsubmit="return false;">
+            <input type="hidden" id="p-id">
+            <!-- Modal Content Same as V3, reusing styles -->
+            <div class="pricing-card">
+                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">Ценообразование</div>
+                
+                <div class="pricing-row">
+                    <span class="pricing-label">Закуп (₽)</span>
+                    <input type="number" id="p-cost" class="input" style="width:100px; text-align:right" 
+                           onchange="confirmCostChange(this)" oninput="calcPrice()">
+                </div>
+                
+                <div class="pricing-row">
+                    <span class="pricing-label">Наценка</span>
+                    <div class="range-wrap">
+                        <input type="range" id="p-markup-range" min="0" max="300" step="5" oninput="syncMarkup(this.value)">
+                    </div>
+                    <input type="number" id="p-markup" class="input" style="width:60px; text-align:right" oninput="syncMarkup(this.value, true)" value="0">
+                    <span style="font-size:12px; color:#aaa">%</span>
+                </div>
+                
+                <div class="pricing-row">
+                    <span class="pricing-label">Скидка</span>
+                    <div class="range-wrap">
+                        <input type="range" id="p-discount-range" min="0" max="90" step="5" oninput="syncDiscount(this.value)">
+                    </div>
+                    <input type="number" id="p-discount" class="input" style="width:60px; text-align:right" oninput="syncDiscount(this.value, true)" value="0">
+                    <span style="font-size:12px; color:#aaa">%</span>
+                </div>
+
+                <div class="final-price-block">
+                    <div>
+                        <div style="font-size:12px; color:var(--text-secondary)">Маржа</div>
+                        <div id="p-margin-badge" class="margin-badge">0%</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-size:12px; color:var(--text-secondary)">Итоговая цена</div>
+                        <div class="final-price" id="p-final-text">0 ₽</div>
+                        <input type="hidden" id="p-price"> 
+                    </div>
+                </div>
             </div>
 
-            <form id="prod-form" onsubmit="saveProduct(event)">
-                <input type="hidden" id="p-id">
+            <div class="img-preview" onclick="document.getElementById('p-file').click()">
+                <img id="p-img-preview" src="" style="display:none">
+                <div class="img-placeholder" id="p-img-placeholder">📸 Фото товара</div>
+                <div style="position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); padding:4px 8px; border-radius:10px; font-size:10px; display:none" id="p-discount-badge">-0%</div>
+            </div>
+            <input type="file" id="p-file" accept="image/*" style="display:none" onchange="uploadImage(this)">
+            <input type="hidden" id="p-image-url">
 
-                <!-- Image Upload -->
-                <div class="form-group">
-                    <label class="label">Фотография</label>
-                    <div class="img-preview" onclick="document.getElementById('p-file').click()">
-                        <img id="p-img-preview" src="" style="display:none">
-                        <div class="img-placeholder" id="p-img-placeholder">Нажмите для загрузки</div>
-                    </div>
-                    <input type="file" id="p-file" accept="image/*" style="display:none"
-                        onchange="uploadImage(this, 'p')">
-                    <input type="hidden" id="p-image-url">
-                </div>
-
-                <!-- Basic Fields -->
-                <div class="form-group">
-                    <label class="label">Название</label>
-                    <input type="text" class="input" id="p-name" required>
-                </div>
-
-                <div class="form-group" style="display:flex; gap:10px">
-                    <div style="flex:1">
-                        <label class="label">Цена (₽)</label>
-                        <input type="number" class="input" id="p-price" required>
-                    </div>
-                    <div style="flex:1">
-                        <label class="label">Категория</label>
-                        <select class="select" id="p-cat"></select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="label">Описание</label>
-                    <textarea class="textarea" id="p-desc"></textarea>
-                </div>
-
-                <!-- Toggles -->
-                <div class="toggle-row">
-                    <span class="toggle-label">На вес (цена за 1 кг)</span>
-                    <label class="switch">
-                        <input type="checkbox" id="p-weight">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="toggle-row">
-                    <span class="toggle-label">Хит продаж 🔥</span>
-                    <label class="switch">
-                        <input type="checkbox" id="p-hit">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="toggle-row">
-                    <span class="toggle-label">В наличии</span>
-                    <label class="switch">
-                        <input type="checkbox" id="p-stock" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-
-                <div class="form-group">
-                    <label class="label">Артикул / Код</label>
-                    <input type="text" class="input" id="p-code">
-                </div>
-
-                <div id="delete-btn-wrap" style="margin-top:20px; text-align:center; display:none">
-                    <button type="button" onclick="deleteProduct()"
-                        style="background:none; border:none; color:var(--danger); font-size:14px;">Удалить
-                        товар</button>
-                </div>
-
-                <button type="submit" class="save-btn">Сохранить</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- CATEGORY MODAL -->
-    <div id="category-modal" class="modal">
-        <div class="modal-wrap">
-            <div class="modal-header">
-                <div class="modal-title" id="c-modal-title">Категория</div>
-                <button class="close-btn" onclick="closeCatModal()">×</button>
+            <div class="form-group">
+                <label class="label">Название</label>
+                <input type="text" class="input" id="p-name" required>
             </div>
 
-            <form id="cat-form" onsubmit="saveCategory(event)">
-                <input type="hidden" id="c-id">
-
-                <div class="form-group">
-                    <label class="label">Фотография (Фон)</label>
-                    <div class="img-preview" onclick="document.getElementById('c-file').click()">
-                        <img id="c-img-preview" src="" style="display:none">
-                        <div class="img-placeholder" id="c-img-placeholder">Нажмите для загрузки</div>
-                    </div>
-                    <input type="file" id="c-file" accept="image/*" style="display:none"
-                        onchange="uploadImage(this, 'c')">
-                    <input type="hidden" id="c-image-url">
+            <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div>
+                    <label class="label">Категория</label>
+                    <select class="input" id="p-cat"></select>
                 </div>
-
-                <div class="form-group">
-                    <label class="label">Название</label>
-                    <input type="text" class="input" id="c-name" required>
+                <div>
+                   <label class="label">Артикул</label>
+                   <input type="text" class="input" id="p-code">
                 </div>
+            </div>
 
-                <div class="form-group">
-                    <label class="label">Иконка (Emoji)</label>
-                    <input type="text" class="input" id="c-icon" placeholder="🐟">
+            <div style="background:rgba(0,0,0,0.2); border-radius:12px; padding:4px; margin-bottom:12px;">
+                <div class="toggle-row" style="margin:0; background:none; border-bottom:1px solid rgba(255,255,255,0.05)">
+                    <span>На вес (кг)</span>
+                    <label class="switch"><input type="checkbox" id="p-weight"><span class="slider"></span></label>
                 </div>
-
-                <div id="c-delete-btn-wrap" style="margin-top:20px; text-align:center; display:none">
-                    <button type="button" onclick="deleteCategory()"
-                        style="background:none; border:none; color:var(--danger); font-size:14px;">Удалить
-                        категорию</button>
+                <div class="toggle-row" style="margin:0; background:none; border-bottom:1px solid rgba(255,255,255,0.05)">
+                    <span>Хит продаж 🔥</span>
+                    <label class="switch"><input type="checkbox" id="p-hit"><span class="slider"></span></label>
                 </div>
+                <div class="toggle-row" style="margin:0; background:none;">
+                    <span>В наличии</span>
+                    <label class="switch"><input type="checkbox" id="p-stock" checked><span class="slider"></span></label>
+                </div>
+            </div>
 
-                <button type="submit" class="save-btn">Сохранить</button>
-            </form>
-        </div>
+            <div class="form-group">
+                <label class="label">Описание</label>
+                <textarea id="p-desc"></textarea>
+            </div>
+
+        </form>
     </div>
+</div>
 
-    <script>
-        const API_BASE = '/api'; // Relative path
+<script>
+    const API_BASE = '/api';
+    let products = [];
+    let categories = [];
+    let prevCost = 0;
 
-        let orders = [];
-        let products = [];
-        let categories = [];
-        let currentOrderFilter = 'new';
+    // --- TELEGRAM INIT & KEYBOARD ---
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.expand(); 
+        tg.ready();
+        tg.setHeaderColor('#0f172a'); 
+    }
 
-        // INIT
-        async function init() {
-            await Promise.all([loadOrders(), loadCategories(), loadProducts()]);
-            renderStats();
-            filterOrders('new');
+    let touchStartY = 0;
+    document.addEventListener("touchstart", e => { touchStartY = e.touches[0].clientY; }, {passive: true});
+    document.addEventListener("touchmove", e => {
+        const touchY = e.touches[0].clientY;
+        const active = document.activeElement;
+        if (touchY - touchStartY > 30 && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) { active.blur(); }
+    }, {passive: true});
+    document.addEventListener("click", e => {
+        const active = document.activeElement;
+        if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA") && !e.target.closest("input") && !e.target.closest("textarea")) { active.blur(); }
+    });
+
+    // --- MAIN LOGIC ---
+    function switchTab(tab) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById('view-' + tab).classList.add('active');
+        document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+        if (tab === 'products') loadProducts();
+        if (tab === 'categories') loadCategories();
+    }
+
+    async function loadProducts() {
+        try {
+            const [pRes, cRes] = await Promise.all([ fetch(API_BASE + '/products'), fetch(API_BASE + '/categories') ]);
+            products = await pRes.json();
+            categories = await cRes.json();
+            
+            // Re-apply search filter if exists
+            filterProducts();
+            
+            renderCatSelect();
+        } catch (e) { console.error(e); }
+    }
+    
+    async function loadCategories() { 
+         const res = await fetch(API_BASE + '/categories');
+         categories = await res.json();
+         document.getElementById('Categories-list').innerHTML = categories.map(c => `<div class="prod-item">${c.name}</div>`).join('');
+    }
+
+    // --- SEARCH LOGIC ---
+    function filterProducts() {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        const clearBtn = document.getElementById('search-clear');
+        
+        clearBtn.style.display = query ? 'block' : 'none';
+
+        if (!query) {
+            renderProducts(products);
+            return;
         }
 
-        // TABS
-        function switchTab(tab) {
-            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + tab).classList.add('active');
+        const filtered = products.filter(p => 
+            (p.name && p.name.toLowerCase().includes(query)) || 
+            (p.code && p.code.toLowerCase().includes(query))
+        );
+        renderProducts(filtered);
+    }
 
-            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
-            // Find tab button by text or index. Since we use onclick, event.target works
-            if (event) event.target.classList.add('active');
-        }
+    function clearSearch() {
+        document.getElementById('search-input').value = '';
+        filterProducts();
+    }
 
-        // --- DATA LOADING ---
-        async function loadOrders() {
-            try {
-                const r = await fetch(API_BASE + '/orders/'); // Fixed URL
-                orders = await r.json();
-                updateOrderCounts();
-            } catch (e) { console.error(e); }
-        }
+    // --- UPDATED RENDER FUNCTION WITH INLINE CALCULATOR ---
+    function renderProducts(list) {
+        const el = document.getElementById('products-list');
+        el.innerHTML = list.map(p => {
+            const cost = p.cost_price || 0;
+            const markup = p.markup || 0;
+            const discount = p.discount_percent || 0;
+            
+            // Initial Calculations
+            const basePrice = cost * (1 + markup / 100);
+            const finalPrice = basePrice * (1 - discount / 100);
+            let margin = 0;
+            if (finalPrice > 0) margin = ((finalPrice - cost) / finalPrice) * 100;
+            
+            const marginClass = margin > 30 ? 'margin-green' : (margin > 15 ? 'margin-yellow' : 'margin-red');
 
-        async function loadProducts() {
-            try {
-                const r = await fetch(API_BASE + '/products/');
-                products = await r.json();
-                renderProducts(products);
-            } catch (e) { console.error(e); }
-        }
-
-        async function loadCategories() {
-            try {
-                const r = await fetch(API_BASE + '/categories/');
-                categories = await r.json();
-                // Select for Products
-                const sel = document.getElementById('p-cat');
-                sel.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-
-                // Render List for Categories Tab
-                renderCategoriesList(categories);
-            } catch (e) { console.error(e); }
-        }
-
-        function renderCategoriesList(list) {
-            const container = document.getElementById('categories-list');
-
-            // Add virtual Hits category
-            let html = `
-                <div class="prod-item" onclick="filterHits()" style="border-color:var(--accent-gold)">
-                    <div class="prod-img" style="font-size:30px; display:flex; align-items:center; justify-content:center">🔥</div>
-                    <div class="prod-info">
-                        <div class="prod-name" style="color:var(--accent-gold)">Хиты продаж</div>
-                    </div>
-                </div>
-            `;
-
-            html += list.map(c => `
-                <div class="prod-item" onclick="openCategoryModal(${c.id})">
-                    <img class="prod-img" src="${c.image_url || '/images/placeholder.jpg'}" onerror="this.src='/images/placeholder.jpg'">
-                    <div class="prod-info">
-                        <div class="prod-name">${c.icon || ''} ${c.name}</div>
-                    </div>
-                    <button class="btn-icon btn-edit">✎</button>
-                </div>
-            `).join('');
-
-            container.innerHTML = html;
-        }
-
-        // --- HITS LOGIC ---
-        function filterHits() {
-            switchTab('products');
-            const hits = products.filter(p => p.is_hit);
-            renderProducts(hits);
-            document.querySelector('.search-input').value = '🔥 Хиты продаж';
-        }
-
-        // --- ORDERS LOGIC ---
-        function updateOrderCounts() {
-            ['new', 'confirmed', 'cooking', 'delivering', 'completed', 'cancelled'].forEach(s => {
-                const c = orders.filter(o => o.status === s).length;
-                const el = document.getElementById('c-' + s);
-                if (el) el.textContent = c;
-            });
-            renderStats();
-            if (document.getElementById('view-orders').classList.contains('active')) filterOrders(currentOrderFilter);
-        }
-
-        function renderStats() {
-            // Simplified stats
-            const total = orders.length;
-            const rev = orders.reduce((s, o) => s + (o.total_amount || o.total || 0), 0); // Use total_amount from API
-            document.getElementById('stats-container').innerHTML = `
-                <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Всего</div></div>
-                <div class="stat-card"><div class="stat-val">${Math.round(rev / 1000)}k</div><div class="stat-lbl">Выручка</div></div>
-                <div class="stat-card"><div class="stat-val">${total ? Math.round(rev / total) : 0}</div><div class="stat-lbl">Ср.чек</div></div>
-            `;
-        }
-
-        function filterOrders(status, btn) {
-            currentOrderFilter = status;
-            if (btn) {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
-
-            const list = orders.filter(o => o.status === status);
-            const container = document.getElementById('orders-list');
-
-            if (!list.length) {
-                container.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-secondary)">Нет заказов</div>';
-                return;
-            }
-
-            container.innerHTML = list.map(o => `
-                <div class="order-card">
-                    <div class="order-head">
-                        <span>#${o.id}</span>
-                        <span>${new Date(o.created_at || Date.now()).toLocaleTimeString().slice(0, 5)}</span>
-                    </div>
-                    <div class="order-body">
-                        # Fix: use o.user_id if needed, check fields
-                        # Removed customer_name access if not present in API response yet, 
-                        # but API returns User ID. We need User info or store name in Order.
-                        # For now, let's display ID and Address
-                        <div style="margin-bottom:8px"><b>Клиент #${o.user_id}</b></div>
-                        <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px">${o.delivery_address || 'Самовывоз'}</div>
-                        <div style="background:rgba(255,255,255,0.05); padding:8px; border-radius:6px; font-size:12px">
-                            ${(o.items || []).map(i => `<div>${i.quantity} x ${i.name || 'Товар'} = ${Math.round((i.price || 0) * i.quantity)}</div>`).join('')}
-                        </div>
-                        <div style="text-align:right; font-weight:700; font-size:16px; margin-top:10px">${o.total_amount || 0} ₽</div>
-                    </div>
-                     <div class="order-actions">
-                        ${status === 'new' ? `<button class="btn-status" style="background:var(--success); color:white" onclick="setStatus(${o.id}, 'confirmed')">Принять</button>` : ''}
-                        ${status === 'confirmed' ? `<button class="btn-status" style="background:var(--accent-blue); color:white" onclick="setStatus(${o.id}, 'cooking')">Готовить</button>` : ''}
-                        ${status === 'cooking' ? `<button class="btn-status" style="background:#fbbf24; color:black" onclick="setStatus(${o.id}, 'delivering')">Курьер</button>` : ''}
-                        ${status === 'delivering' ? `<button class="btn-status" style="background:#10b981; color:white" onclick="setStatus(${o.id}, 'completed')">Вручен</button>` : ''}
-                        <button class="btn-status" style="background:rgba(239, 68, 68, 0.2); color:#ef4444" onclick="setStatus(${o.id}, 'cancelled')">Отмена</button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        async function setStatus(id, s) {
-            if (!confirm('Изменить статус?')) return;
-            await fetch(API_BASE + `/orders/${id}/status`, { // Fixed URL
-                method: 'PATCH', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ status: s })
-            });
-            loadOrders();
-        }
-
-        // --- PRODUCTS LOGIC ---
-        function renderProducts(list) {
-            const container = document.getElementById('products-list');
-            container.innerHTML = list.map(p => `
-                <div class="prod-item" onclick="openProductModal(${p.id})">
-                    <img class="prod-img" src="${p.image_url || '/images/placeholder.jpg'}" onerror="this.src='/images/placeholder.jpg'">
+            return `
+            <div class="prod-item" id="item-${p.id}">
+                <button class="btn-edit" onclick="openProductModal(${p.id})">✎</button>
+                <div class="prod-main">
+                    <img class="prod-img" src="${p.image_url || ''}" onerror="this.style.display='none'">
                     <div class="prod-info">
                         <div class="prod-name">${p.name}</div>
-                        <div class="prod-meta">${Math.round(p.priceperkg)} ₽ ${p.is_weighted ? '/ кг' : '/ шт'} • ${p.code || ''}</div>
+                        <div class="prod-price-box">
+                            ${discount > 0 ? `<div class="old-price" id="old-${p.id}">${Math.round(basePrice)} ₽</div>` : `<div class="old-price" id="old-${p.id}" style="display:none"></div>`}
+                            <div id="price-${p.id}">${Math.round(finalPrice)} ₽</div>
+                            <div id="margin-${p.id}" class="margin-badge ${marginClass}">${Math.round(margin)}%</div>
+                        </div>
                     </div>
-                    <button class="btn-icon btn-edit">✎</button>
                 </div>
-            `).join('');
+
+                <!-- INLINE CALCULATOR -->
+                <div class="inline-calc">
+                    <div class="calc-col">
+                        <div class="calc-label">Закуп (₽)</div>
+                        <div class="calc-input-wrap">
+                            <input type="number" class="calc-input" value="${cost}" style="color:var(--text-secondary)"
+                                   oninput="calcListItem(${p.id})" id="in-cost-${p.id}">
+                        </div>
+                    </div>
+                    <div class="calc-col">
+                        <div class="calc-label">Наценка</div>
+                        <div class="calc-input-wrap">
+                            <input type="number" class="calc-input" value="${markup}" 
+                                   oninput="calcListItem(${p.id})" id="in-markup-${p.id}">
+                            <span class="calc-suffix">%</span>
+                        </div>
+                    </div>
+                    <div class="calc-col">
+                        <div class="calc-label">Скидка</div>
+                        <div class="calc-input-wrap">
+                            <input type="number" class="calc-input" value="${discount}" 
+                                   oninput="calcListItem(${p.id})" id="in-discount-${p.id}">
+                            <span class="calc-suffix">%</span>
+                        </div>
+                    </div>
+                    <button class="item-save-btn" id="btn-save-${p.id}" onclick="saveListItem(${p.id})">Сохранить изменения</button>
+                    <input type="hidden" id="in-final-${p.id}" value="${finalPrice}">
+                </div>
+            </div>
+        `}).join('');
+    }
+
+    function calcListItem(id) {
+        const cost = parseFloat(document.getElementById(`in-cost-${id}`).value) || 0;
+        const markup = parseInt(document.getElementById(`in-markup-${id}`).value) || 0;
+        const discount = parseInt(document.getElementById(`in-discount-${id}`).value) || 0;
+
+        const basePrice = cost * (1 + markup / 100);
+        const finalPrice = basePrice * (1 - discount / 100);
+
+        // Update Price UI
+        const priceEl = document.getElementById(`price-${id}`);
+        const oldPriceEl = document.getElementById(`old-${id}`);
+        
+        priceEl.textContent = Math.round(finalPrice) + ' ₽';
+        document.getElementById(`in-final-${id}`).value = finalPrice; // store for save
+
+        if (discount > 0) {
+            oldPriceEl.style.display = 'block';
+            oldPriceEl.textContent = Math.round(basePrice) + ' ₽';
+        } else {
+            oldPriceEl.style.display = 'none';
         }
 
-        function searchProducts(q) {
-            const term = q.toLowerCase();
-            const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-            renderProducts(filtered);
-        }
+        // Update Margin UI
+        let margin = 0;
+        if (finalPrice > 0) margin = ((finalPrice - cost) / finalPrice) * 100;
+        
+        const marginEl = document.getElementById(`margin-${id}`);
+        marginEl.textContent = Math.round(margin) + '%';
+        marginEl.className = 'margin-badge ' + (margin > 30 ? 'margin-green' : (margin > 15 ? 'margin-yellow' : 'margin-red'));
 
-        let editingId = null;
+        // Show Save Button
+        document.getElementById(`btn-save-${id}`).style.display = 'block';
+    }
 
-        function openProductModal(id = null) {
-            const modal = document.getElementById('product-modal');
-            const form = document.getElementById('prod-form');
-            form.reset();
+    async function saveListItem(id) {
+        const btn = document.getElementById(`btn-save-${id}`);
+        const originalText = btn.textContent;
+        btn.textContent = 'Сохранение...';
 
-            editingId = id;
-            if (id) {
-                const p = products.find(x => x.id === id);
-                document.getElementById('modal-title').textContent = 'Редактирование';
-                document.getElementById('p-id').value = p.id;
-                document.getElementById('p-name').value = p.name;
-                document.getElementById('p-price').value = p.priceperkg;
-                document.getElementById('p-desc').value = p.description || '';
-                document.getElementById('p-cat').value = p.categoryid;
-                document.getElementById('p-weight').checked = p.is_weighted;
-                document.getElementById('p-hit').checked = p.is_hit;
-                document.getElementById('p-stock').checked = p.in_stock;
-                document.getElementById('p-code').value = p.code || '';
+        const product = products.find(p => p.id == id);
+        if (!product) return;
 
-                document.getElementById('p-image-url').value = p.image_url;
-                if (p.image_url) {
-                    document.getElementById('p-img-preview').src = p.image_url;
-                    document.getElementById('p-img-preview').style.display = 'block';
-                    document.getElementById('p-img-placeholder').style.display = 'none';
-                } else {
-                    document.getElementById('p-img-preview').style.display = 'none';
-                    document.getElementById('p-img-placeholder').style.display = 'block';
-                }
+        const cost = parseFloat(document.getElementById(`in-cost-${id}`).value) || 0;
+        const markup = parseInt(document.getElementById(`in-markup-${id}`).value) || 0;
+        const discount = parseInt(document.getElementById(`in-discount-${id}`).value) || 0;
+        const finalPrice = parseFloat(document.getElementById(`in-final-${id}`).value);
 
-                document.getElementById('delete-btn-wrap').style.display = 'block';
+        const updatePayload = {
+            cost_price: cost,
+            markup: markup,
+            discount_percent: discount,
+            is_discount: discount > 0,
+            priceperkg: finalPrice
+        };
+
+        try {
+            const res = await fetch(API_BASE + '/products/' + id, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(updatePayload)
+            });
+
+            if (res.ok) {
+                btn.textContent = 'Сохранено! ✅';
+                setTimeout(() => { btn.style.display = 'none'; btn.textContent = 'Сохранить изменения'; }, 1500);
+                // Update local products array so we don't lose changes on tab switch
+                Object.assign(product, updatePayload); 
             } else {
-                document.getElementById('modal-title').textContent = 'Новый товар';
-                document.getElementById('p-image-url').value = '';
+                alert('Ошибка сохранения');
+                btn.textContent = originalText;
+            }
+        } catch (e) {
+            alert('Ошибка сети');
+            btn.textContent = originalText;
+        }
+    }
+
+    function renderCatSelect() {
+        const sel = document.getElementById('p-cat');
+        sel.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    }
+
+    // --- MODAL & CALCULATOR (Keep existing logic) ---
+    function syncMarkup(val, fromInput=false) {
+        if (!fromInput) document.getElementById('p-markup').value = val;
+        else document.getElementById('p-markup-range').value = val;
+        calcPrice();
+    }
+    
+    function syncDiscount(val, fromInput=false) {
+        if (!fromInput) document.getElementById('p-discount').value = val;
+        else document.getElementById('p-discount-range').value = val;
+        calcPrice();
+    }
+
+    function confirmCostChange(input) {
+        const newVal = parseFloat(input.value) || 0;
+        if (Math.abs(newVal - prevCost) > 1) { 
+            if (!confirm(`Изменить закупочную цену с ${prevCost} на ${newVal}? Это повлияет на маржу.`)) {
+                input.value = prevCost;
+                calcPrice();
+                return;
+            }
+        }
+        prevCost = newVal;
+        calcPrice();
+    }
+
+    function calcPrice() {
+        const cost = parseFloat(document.getElementById('p-cost').value) || 0;
+        const markup = parseInt(document.getElementById('p-markup').value) || 0;
+        const discount = parseInt(document.getElementById('p-discount').value) || 0;
+        const basePrice = cost * (1 + markup / 100);
+        const finalPrice = basePrice * (1 - discount / 100);
+
+        document.getElementById('p-price').value = finalPrice.toFixed(2);
+        document.getElementById('p-final-text').textContent = Math.round(finalPrice) + ' ₽';
+        
+        let margin = 0;
+        if (finalPrice > 0) margin = ((finalPrice - cost) / finalPrice) * 100;
+        
+        const badge = document.getElementById('p-margin-badge');
+        badge.textContent = Math.round(margin) + '%';
+        badge.className = 'margin-badge ' + (margin > 30 ? 'margin-green' : (margin > 15 ? 'margin-yellow' : 'margin-red'));
+
+        const discountBadge = document.getElementById('p-discount-badge');
+        if (discount > 0) {
+            discountBadge.style.display = 'block';
+            discountBadge.textContent = '-' + discount + '%';
+            discountBadge.style.background = 'var(--danger)';
+        } else {
+            discountBadge.style.display = 'none';
+        }
+    }
+
+    function openProductModal(id = null) {
+        const form = document.getElementById('prod-form');
+        form.reset();
+        document.getElementById('p-id').value = id || '';
+        document.getElementById('p-del-btn').style.display = id ? 'flex' : 'none';
+        
+        if (id && id !== 'null') {
+            const p = products.find(x => x.id == id);
+            if (!p) return; 
+
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-cat').value = p.categoryid;
+            document.getElementById('p-desc').value = p.description || '';
+            document.getElementById('p-code').value = p.code || '';
+            document.getElementById('p-weight').checked = p.is_weighted;
+            document.getElementById('p-hit').checked = p.is_hit;
+            document.getElementById('p-stock').checked = p.in_stock;
+            
+            const cost = p.cost_price || 0;
+            const markup = p.markup || 0;
+            const discount = p.discount_percent || 0;
+            
+            prevCost = cost;
+            document.getElementById('p-cost').value = cost;
+            
+            syncMarkup(markup);
+            syncDiscount(discount);
+            
+            document.getElementById('p-image-url').value = p.image_url || '';
+            if (p.image_url) {
+                document.getElementById('p-img-preview').src = p.image_url;
+                document.getElementById('p-img-preview').style.display = 'block';
+                document.getElementById('p-img-placeholder').style.display = 'none';
+            } else {
                 document.getElementById('p-img-preview').style.display = 'none';
                 document.getElementById('p-img-placeholder').style.display = 'block';
-                document.getElementById('delete-btn-wrap').style.display = 'none';
             }
-
-            modal.classList.add('active');
+        } else {
+            prevCost = 0;
+            document.getElementById('p-cost').value = 0;
+            syncMarkup(30);
+            syncDiscount(0);
+            document.getElementById('p-img-preview').style.display = 'none';
+            document.getElementById('p-img-placeholder').style.display = 'block';
         }
+        document.getElementById('product-modal').classList.add('active');
+    }
 
-        function closeModal() {
-            document.getElementById('product-modal').classList.remove('active');
+    function closeModal() {
+        document.getElementById('product-modal').classList.remove('active');
+    }
+
+    async function saveProductWithConfirm() {
+        if(!confirm("Сохранить изменения?")) return;
+        const id = document.getElementById('p-id').value;
+        const discountVal = parseInt(document.getElementById('p-discount').value);
+        const data = {
+            name: document.getElementById('p-name').value,
+            priceperkg: parseFloat(document.getElementById('p-price').value),
+            cost_price: parseFloat(document.getElementById('p-cost').value),
+            markup: parseInt(document.getElementById('p-markup').value),
+            categoryid: parseInt(document.getElementById('p-cat').value),
+            description: document.getElementById('p-desc').value,
+            code: document.getElementById('p-code').value,
+            is_weighted: document.getElementById('p-weight').checked,
+            is_hit: document.getElementById('p-hit').checked,
+            in_stock: document.getElementById('p-stock').checked,
+            is_discount: discountVal > 0,
+            discount_percent: discountVal,
+            image_url: document.getElementById('p-image-url').value || null
+        };
+        const method = id ? 'PATCH' : 'POST';
+        const url = id ? API_BASE + '/products/' + id : API_BASE + '/products';
+        try {
+            const res = await fetch(url, {method: method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)});
+            if (res.ok) { closeModal(); loadProducts(); }
+            else { const text = await res.text(); alert('Ошибка сохранения: ' + text); }
+        } catch(e) { alert('Ошибка сети'); }
+    }
+    
+    async function deleteProductWithConfirm() {
+        if(!confirm("Удалить?")) return;
+        const id = document.getElementById('p-id').value;
+        await fetch(API_BASE + '/products/' + id, {method:'DELETE'});
+        closeModal(); loadProducts();
+    }
+
+    async function uploadImage(input) {
+        const file = input.files[0];
+        if(!file) return;
+        const fd = new FormData(); fd.append('file', file);
+        const res = await fetch(API_BASE + '/upload/product-image', {method:'POST', body:fd});
+        const d = await res.json();
+        if(d.url) {
+            document.getElementById('p-image-url').value = d.url;
+            document.getElementById('p-img-preview').src = d.url;
+            document.getElementById('p-img-preview').style.display='block';
+            document.getElementById('p-img-placeholder').style.display='none';
         }
+    }
 
-        // --- CATEGORIES LOGIC ---
-        let editingCatId = null;
-        function openCategoryModal(id = null) {
-            const modal = document.getElementById('category-modal');
-            const form = document.getElementById('cat-form');
-            form.reset();
-
-            editingCatId = id;
-            if (id) {
-                const c = categories.find(x => x.id === id);
-                document.getElementById('c-modal-title').textContent = 'Редактирование';
-                document.getElementById('c-id').value = c.id;
-                document.getElementById('c-name').value = c.name;
-                document.getElementById('c-icon').value = c.icon || '';
-                document.getElementById('c-image-url').value = c.image_url || '';
-
-                if (c.image_url) {
-                    document.getElementById('c-img-preview').src = c.image_url;
-                    document.getElementById('c-img-preview').style.display = 'block';
-                    document.getElementById('c-img-placeholder').style.display = 'none';
-                } else {
-                    document.getElementById('c-img-preview').style.display = 'none';
-                    document.getElementById('c-img-placeholder').style.display = 'block';
-                }
-                document.getElementById('c-delete-btn-wrap').style.display = 'block';
-            } else {
-                document.getElementById('c-modal-title').textContent = 'Новая категория';
-                document.getElementById('c-image-url').value = '';
-                document.getElementById('c-img-preview').style.display = 'none';
-                document.getElementById('c-img-placeholder').style.display = 'block';
-                document.getElementById('c-delete-btn-wrap').style.display = 'none';
-            }
-            modal.classList.add('active');
-        }
-        function closeCatModal() { document.getElementById('category-modal').classList.remove('active'); }
-
-        async function saveCategory(e) {
-            e.preventDefault();
-            const data = {
-                name: document.getElementById('c-name').value,
-                icon: document.getElementById('c-icon').value,
-                image_url: document.getElementById('c-image-url').value
-            };
-            try {
-                let r;
-                if (editingCatId) {
-                    r = await fetch(API_BASE + '/categories/' + editingCatId, {
-                        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
-                    });
-                } else {
-                    r = await fetch(API_BASE + '/categories/', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data)
-                    });
-                }
-                if (r.ok) { closeCatModal(); loadCategories(); }
-                else alert('Ошибка сохранения');
-            } catch (e) { console.error(e); }
-        }
-
-        async function deleteCategory() {
-            if (!editingCatId || !confirm('Удалить категорию?')) return;
-            await fetch(API_BASE + '/categories/' + editingCatId, { method: 'DELETE' });
-            closeCatModal(); loadCategories();
-        }
-
-        // --- SHARED ---
-        async function uploadImage(input, prefix) {
-            const file = input.files[0];
-            if (!file) return;
-            const formData = new FormData();
-            formData.append('file', file);
-            document.getElementById(prefix + '-img-placeholder').textContent = 'Загрузка...';
-            try {
-                const r = await fetch(API_BASE + '/upload', { method: 'POST', body: formData });
-                const d = await r.json();
-                document.getElementById(prefix + '-image-url').value = d.url;
-                document.getElementById(prefix + '-img-preview').src = d.url;
-                document.getElementById(prefix + '-img-preview').style.display = 'block';
-                document.getElementById(prefix + '-img-placeholder').style.display = 'none';
-            } catch (e) {
-                alert('Ошибка загрузки. Проверьте размер файла.');
-                document.getElementById(prefix + '-img-placeholder').textContent = 'Ошибка!';
-            }
-        }
-
-        async function saveProduct(e) {
-            e.preventDefault();
-            const data = {
-                name: document.getElementById('p-name').value,
-                priceperkg: parseFloat(document.getElementById('p-price').value),
-                description: document.getElementById('p-desc').value,
-                categoryid: parseInt(document.getElementById('p-cat').value),
-                is_weighted: document.getElementById('p-weight').checked,
-                is_hit: document.getElementById('p-hit').checked,
-                in_stock: document.getElementById('p-stock').checked,
-                image_url: document.getElementById('p-image-url').value,
-                code: document.getElementById('p-code').value // Add code support
-            };
-
-            try {
-                let r;
-                if (editingId) {
-                    r = await fetch(API_BASE + '/products/' + editingId, {
-                        method: 'PATCH',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                } else {
-                    r = await fetch(API_BASE + '/products/', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(data)
-                    });
-                }
-
-                if (r.ok) {
-                    closeModal();
-                    loadProducts();
-                } else {
-                    alert('Ошибка сохранения');
-                }
-            } catch (e) { console.error(e); }
-        }
-
-        async function deleteProduct() {
-            if (!editingId || !confirm('Удалить товар навсегда?')) return;
-            await fetch(API_BASE + '/products/' + editingId, { method: 'DELETE' });
-            closeModal();
-            loadProducts();
-        }
-
-        init();
-
-    </script>
+    loadProducts();
+</script>
 </body>
-
 </html>
-```

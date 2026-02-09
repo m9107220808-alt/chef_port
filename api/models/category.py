@@ -1,16 +1,19 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship, backref
 from api.database import Base
 
-
 class Category(Base):
-    """Категория товаров"""
     __tablename__ = "categories"
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    code = Column(String(50), unique=True, nullable=False)
-    name = Column(String, nullable=False)
+
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String(50), nullable=False)
+    name = Column(String(255), index=True)
     sort_order = Column(Integer, default=0)
-    image_url = Column(String, nullable=True)  # Фото категории
+    icon = Column(String)
+    parent_id = Column(Integer, ForeignKey('categories.id'), nullable=True)
+    # v1.5 field
+    image_url = Column(String, nullable=True)
     
-    def __repr__(self):
-        return f"<Category(id={self.id}, code={self.code}, name={self.name})>"
+    children = relationship("Category", 
+                          backref=backref('parent', remote_side=[id]),
+                          cascade="all, delete-orphan")

@@ -8,18 +8,19 @@ from typing import List
 import os
 
 from api.config import settings
-from api.routes import products, orders, users
+from api.routes import products, orders, users, settings as settings_router, uploads
+from api.routes import upload
 from api.database import get_db
 from api.models.product import Product
-from api.models.category import Category
 from api.schemas.product import ProductResponse
+from api.models.category import Category
 from api.schemas.category import CategoryResponse
 
 # Создаём приложение FastAPI
 app = FastAPI(
     title="ChefPort API",
     description="API для бота ChefPort - морепродукты с доставкой",
-    version="1.0.0",
+    version="1.5.0",
 )
 
 # Настройка CORS
@@ -31,12 +32,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Подключаем роуты (products закомментирован - используем свой эндпоинт выше)
-# app.include_router(products.router, prefix="/api/products", tags=["Товары"])
+# Подключаем роуты
 app.include_router(orders.router, prefix="/api/orders", tags=["Заказы"])
 app.include_router(users.router, prefix="/api/users", tags=["Пользователи"])
+app.include_router(settings_router.router, prefix="/api/settings", tags=["Настройки"])
+app.include_router(uploads.router, prefix="/api/uploads", tags=["Загрузка"])
+app.include_router(upload.router, prefix="/api", tags=["Загрузка 2"])
+app.include_router(products.router, prefix="/api/products", tags=["Товары"])
+# app.include_router(categories.router, prefix="/api/categories", tags=["Категории"]) # If categories router exists
 
-# API: Категории
+# API: Категории (Inline v1.4 - Keeping this if categories.py router is not fully ready/imported)
+# Actually, let's check if categories router exists. If not, keep inline.
+# Ideally we should move this to category router too, but let's fix products first.
 @app.get("/api/categories", response_model=List[CategoryResponse], tags=["Категории"])
 async def get_categories(db: AsyncSession = Depends(get_db)):
     """Получить все категории"""
@@ -44,13 +51,7 @@ async def get_categories(db: AsyncSession = Depends(get_db)):
     categories = result.scalars().all()
     return categories
 
-# API: Все продукты (для Mini App)
-@app.get("/api/products", response_model=List[ProductResponse], tags=["Товары"])
-async def get_all_products(db: AsyncSession = Depends(get_db)):
-    """Получить все продукты"""
-    result = await db.execute(select(Product))
-    products = result.scalars().all()
-    return products
+# NOTE: Removed inline /api/products because we included products.router above
 
 # Путь к папке web
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -76,7 +77,6 @@ async def get_products_data_js():
 async def get_client_app():
     return FileResponse(os.path.join(WEB_DIR, "miniapp_client.html"))
 
-
 @app.get("/app/admin", response_class=HTMLResponse)
 async def get_admin_app():
     return FileResponse(os.path.join(WEB_DIR, "miniapp_admin.html"))
@@ -89,16 +89,12 @@ async def get_delivery_app():
 async def root_page():
     return FileResponse(os.path.join(WEB_DIR, "miniapp_client.html"))
 
-
-
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
 
-
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(
         "api.main:app",
         host=settings.api_host,

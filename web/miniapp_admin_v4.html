@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Chef Port Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-surface: rgba(51, 65, 85, 0.8);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --border: rgba(255, 255, 255, 0.1);
+            --glass: blur(12px);
+            --radius: 20px;
+        }
+
+        body {
+            margin: 0; padding: 0; font-family: 'Inter', sans-serif;
+            background: var(--bg-color); color: var(--text-primary);
+            padding-bottom: 80px; background-attachment: fixed; background-size: cover;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .header {
+            padding: 16px; background: var(--bg-card);
+            backdrop-filter: var(--glass); -webkit-backdrop-filter: var(--glass);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .header h1 { margin: 0; font-size: 20px; }
+
+        .nav-tabs { display: flex; gap: 8px; overflow-x: auto; padding-top: 12px; }
+        .nav-tab {
+            padding: 8px 16px; background: rgba(255,255,255,0.05);
+            border-radius: 20px; font-size: 14px; white-space: nowrap; cursor: pointer;
+            transition: 0.3s;
+        }
+        .nav-tab.active { background: var(--accent-blue); color: white; }
+
+        .view-section { display: none; padding: 16px; }
+        .view-section.active { display: block; }
+
+        /* Product List */
+        .prod-list { display: grid; gap: 12px; }
+        .prod-item {
+            background: var(--bg-card); padding: 12px; border-radius: 12px;
+            display: flex; flex-direction: column; gap: 12px; border: 1px solid var(--border);
+            position: relative;
+        }
+        .prod-main { display: flex; gap: 12px; align-items: flex-start; }
+        
+        .prod-img {
+            width: 70px; height: 70px; border-radius: 12px; object-fit: cover; background: #334155;
+            flex-shrink: 0;
+        }
+        .prod-info { flex: 1; min-width: 0; }
+        .prod-name { font-weight: 600; font-size: 15px; margin-bottom: 6px; line-height: 1.3; }
+        
+        .prod-price-box { font-size: 16px; font-weight: 700; color: var(--success); display: flex; gap: 8px; align-items: center; }
+        .old-price { font-size: 13px; color: var(--text-secondary); text-decoration: line-through; font-weight: 400; opacity: 0.7; }
+        
+        .btn-edit {
+            width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.1);
+            border: none; color: white; font-size: 18px; cursor: pointer; position: absolute; top: 12px; right: 12px;
+        }
+
+        /* Inline Calculator */
+        .inline-calc {
+            background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px;
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+            border: 1px solid var(--border);
+        }
+        .calc-col { display: flex; flex-direction: column; gap: 4px; }
+        .calc-label { font-size: 10px; color: var(--text-secondary); text-transform: uppercase; }
+        
+        .calc-input-wrap {
+            display: flex; align-items: center; background: rgba(255,255,255,0.05);
+            border-radius: 8px; padding: 4px; border: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .calc-input-wrap:focus-within { border-color: var(--accent-blue); }
+        
+        .calc-input {
+            width: 100%; background: none; border: none; color: white;
+            font-size: 14px; text-align: center; padding: 0; font-weight: 500;
+        }
+        .calc-input:focus { outline: none; }
+        .calc-suffix { font-size: 11px; color: var(--text-secondary); padding-right: 4px; }
+
+        .margin-badge {
+            font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+            display: inline-block; margin-left: 6px; vertical-align: middle;
+        }
+        .margin-green { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .margin-yellow { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+        .margin-red { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+
+        .item-save-btn {
+            grid-column: span 3; margin-top: 4px;
+            background: var(--accent-blue); color: white; border: none;
+            padding: 8px; border-radius: 8px; font-size: 13px; font-weight: 600;
+            cursor: pointer; display: none; /* hidden by default */
+            animation: fadeIn 0.2s;
+        }
+        @keyframes fadeIn { from{opacity:0; transform:translateY(-5px);} to{opacity:1; transform:translateY(0);} }
+
+        /* FAB */
+        .fab {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: var(--accent-blue); color: white;
+            border: none; font-size: 24px; box-shadow: 0 4px 12px rgba(59,130,246,0.5);
+            cursor: pointer; z-index: 90; display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); z-index: 1000;
+            display: none; align-items: flex-end; justify-content: center;
+        }
+        .modal.active { display: flex; animation: fadeUp 0.3s; }
+        @keyframes fadeUp { from {opacity:0; transform:translateY(20px);} to {opacity:1; transform:translateY(0);} }
+
+        .modal-wrap {
+            background: #1e293b; width: 100%; height: 95vh;
+            border-radius: 20px 20px 0 0; padding: 20px;
+            overflow-y: auto; position: relative;
+        }
+        
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px 16px; border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.2);
+            margin: -20px -20px 16px -20px; border-radius: 20px 20px 0 0;
+            position: sticky; top: -20px; z-index: 10; backdrop-filter: blur(10px);
+        }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .action-btn {
+            padding: 8px 16px; border-radius: 20px; border: none;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .btn-save { background: var(--success); color: white; }
+        .btn-del { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+        .close-btn { background: none; border: none; color: #fff; font-size: 28px; padding: 0 8px; cursor: pointer;}
+
+        .form-group { margin-bottom: 12px; }
+        .label { display: block; margin-bottom: 6px; font-size: 13px; color: var(--text-secondary); }
+        .input, select, textarea {
+            width: 100%; padding: 10px; background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border); border-radius: 8px;
+            color: white; font-family: inherit; box-sizing: border-box; font-size: 14px;
+        }
+
+        /* Smart Pricing Card (Modal) */
+        .pricing-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px; margin-bottom: 16px;
+            backdrop-filter: blur(5px);
+        }
+        .pricing-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 10px; }
+        .pricing-label { font-size: 13px; color: var(--text-secondary); flex: 1; }
+        /* .pricing-val { font-weight: 600; width: 60px; text-align: right; } */
+        
+        .range-wrap { flex: 2; display: flex; align-items: center; gap: 8px; }
+        input[type=range] {
+            flex: 1; accent-color: var(--accent-blue); height: 4px; border-radius: 2px;
+        }
+        
+        .final-price-block {
+            background: rgba(0,0,0,0.3); padding: 12px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .final-price { font-size: 18px; font-weight: 700; color: var(--success); }
+
+        /* Image Upload */
+        .img-preview {
+            width: 100%; height: 140px; background: rgba(0,0,0,0.2);
+            border-radius: 12px; margin-bottom: 16px; overflow: hidden;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px dashed var(--border); cursor: pointer; position: relative;
+        }
+        .img-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .img-placeholder { color: var(--text-secondary); font-size: 13px; text-align: center; }
+
+        /* Toggles */
+        .toggle-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 12px; background: rgba(255,255,255,0.05);
+            border-radius: 10px; margin-bottom: 8px;
+        }
+        .switch { position: relative; display: inline-block; width: 46px; height: 26px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #475569; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 18px; width: 18px;
+            left: 4px; bottom: 4px; background-color: white;
+            transition: .4s; border-radius: 50%;
+        }
+        input:checked + .slider { background-color: var(--success); }
+        input:checked + .slider:before { transform: translateX(20px); }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>🔧 Chef Port Admin</h1>
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('orders')">Заказы</div>
+        <div class="nav-tab" onclick="switchTab('products')">Товары</div>
+        <div class="nav-tab" onclick="switchTab('categories')">Категории</div>
+        <div class="nav-tab" onclick="switchTab('design')">Дизайн</div>
+    </div>
+</div>
+
+<div id="view-orders" class="view-section active">
+    <div style="text-align:center; padding: 40px; color: var(--text-secondary)">Загрузка заказов...</div>
+</div>
+
+<div id="view-products" class="view-section">
+    <div class="prod-list" id="products-list"></div>
+    <button class="fab" onclick="openProductModal()">+</button>
+</div>
+
+<div id="view-categories" class="view-section">
+    <div class="prod-list" id="Categories-list"></div>
+</div>
+
+<div id="view-design" class="view-section">
+    <h3>🎨 Настройки дизайна</h3>
+    <button class="action-btn btn-save" style="width:100%; justify-content:center" onclick="alert('OK')">Сохранить</button>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="product-modal" class="modal">
+    <div class="modal-wrap">
+        <div class="modal-header">
+            <div class="header-actions">
+                <button type="button" class="action-btn btn-del" id="p-del-btn" onclick="deleteProductWithConfirm()" style="display:none">🗑️</button>
+                <button type="button" class="action-btn btn-save" onclick="saveProductWithConfirm()">💾 Сохранить</button>
+            </div>
+            <button class="close-btn" onclick="closeModal()">×</button>
+        </div>
+        
+        <form id="prod-form" onsubmit="return false;">
+            <input type="hidden" id="p-id">
+            <!-- Modal Content Same as V3, reusing styles -->
+            <div class="pricing-card">
+                <div style="font-size:12px; color:var(--text-secondary); margin-bottom:10px; text-transform:uppercase; letter-spacing:1px;">Ценообразование</div>
+                
+                <div class="pricing-row">
+                    <span class="pricing-label">Закуп (₽)</span>
+                    <input type="number" id="p-cost" class="input" style="width:100px; text-align:right" 
+                           onchange="confirmCostChange(this)" oninput="calcPrice()">
+                </div>
+                
+                <div class="pricing-row">
+                    <span class="pricing-label">Наценка</span>
+                    <div class="range-wrap">
+                        <input type="range" id="p-markup-range" min="0" max="300" step="5" oninput="syncMarkup(this.value)">
+                    </div>
+                    <input type="number" id="p-markup" class="input" style="width:60px; text-align:right" oninput="syncMarkup(this.value, true)" value="0">
+                    <span style="font-size:12px; color:#aaa">%</span>
+                </div>
+                
+                <div class="pricing-row">
+                    <span class="pricing-label">Скидка</span>
+                    <div class="range-wrap">
+                        <input type="range" id="p-discount-range" min="0" max="90" step="5" oninput="syncDiscount(this.value)">
+                    </div>
+                    <input type="number" id="p-discount" class="input" style="width:60px; text-align:right" oninput="syncDiscount(this.value, true)" value="0">
+                    <span style="font-size:12px; color:#aaa">%</span>
+                </div>
+
+                <div class="final-price-block">
+                    <div>
+                        <div style="font-size:12px; color:var(--text-secondary)">Маржа</div>
+                        <div id="p-margin-badge" class="margin-badge">0%</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div style="font-size:12px; color:var(--text-secondary)">Итоговая цена</div>
+                        <div class="final-price" id="p-final-text">0 ₽</div>
+                        <input type="hidden" id="p-price"> 
+                    </div>
+                </div>
+            </div>
+
+            <div class="img-preview" onclick="document.getElementById('p-file').click()">
+                <img id="p-img-preview" src="" style="display:none">
+                <div class="img-placeholder" id="p-img-placeholder">📸 Фото товара</div>
+                <div style="position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.6); padding:4px 8px; border-radius:10px; font-size:10px; display:none" id="p-discount-badge">-0%</div>
+            </div>
+            <input type="file" id="p-file" accept="image/*" style="display:none" onchange="uploadImage(this)">
+            <input type="hidden" id="p-image-url">
+
+            <div class="form-group">
+                <label class="label">Название</label>
+                <input type="text" class="input" id="p-name" required>
+            </div>
+
+            <div class="form-group" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                <div>
+                    <label class="label">Категория</label>
+                    <select class="input" id="p-cat"></select>
+                </div>
+                <div>
+                   <label class="label">Артикул</label>
+                   <input type="text" class="input" id="p-code">
+                </div>
+            </div>
+
+            <div style="background:rgba(0,0,0,0.2); border-radius:12px; padding:4px; margin-bottom:12px;">
+                <div class="toggle-row" style="margin:0; background:none; border-bottom:1px solid rgba(255,255,255,0.05)">
+                    <span>На вес (кг)</span>
+                    <label class="switch"><input type="checkbox" id="p-weight"><span class="slider"></span></label>
+                </div>
+                <div class="toggle-row" style="margin:0; background:none; border-bottom:1px solid rgba(255,255,255,0.05)">
+                    <span>Хит продаж 🔥</span>
+                    <label class="switch"><input type="checkbox" id="p-hit"><span class="slider"></span></label>
+                </div>
+                <div class="toggle-row" style="margin:0; background:none;">
+                    <span>В наличии</span>
+                    <label class="switch"><input type="checkbox" id="p-stock" checked><span class="slider"></span></label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="label">Описание</label>
+                <textarea id="p-desc"></textarea>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    const API_BASE = '/api';
+    let products = [];
+    let categories = [];
+    let prevCost = 0;
+
+    // --- TELEGRAM INIT & KEYBOARD ---
+    if (window.Telegram && window.Telegram.WebApp) {
+        const tg = window.Telegram.WebApp;
+        tg.expand(); 
+        tg.ready();
+        tg.setHeaderColor('#0f172a'); 
+    }
+
+    let touchStartY = 0;
+    document.addEventListener("touchstart", e => { touchStartY = e.touches[0].clientY; }, {passive: true});
+    document.addEventListener("touchmove", e => {
+        const touchY = e.touches[0].clientY;
+        const active = document.activeElement;
+        if (touchY - touchStartY > 30 && (active.tagName === "INPUT" || active.tagName === "TEXTAREA")) { active.blur(); }
+    }, {passive: true});
+    document.addEventListener("click", e => {
+        const active = document.activeElement;
+        if (active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA") && !e.target.closest("input") && !e.target.closest("textarea")) { active.blur(); }
+    });
+
+    // --- MAIN LOGIC ---
+    function switchTab(tab) {
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+        document.getElementById('view-' + tab).classList.add('active');
+        document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+        event.target.classList.add('active');
+        if (tab === 'products') loadProducts();
+        if (tab === 'categories') loadCategories();
+    }
+
+    async function loadProducts() {
+        try {
+            const [pRes, cRes] = await Promise.all([ fetch(API_BASE + '/products'), fetch(API_BASE + '/categories') ]);
+            products = await pRes.json();
+            categories = await cRes.json();
+            renderProducts(products);
+            renderCatSelect();
+        } catch (e) { console.error(e); }
+    }
+    
+    async function loadCategories() { 
+         const res = await fetch(API_BASE + '/categories');
+         categories = await res.json();
+         document.getElementById('Categories-list').innerHTML = categories.map(c => `<div class="prod-item">${c.name}</div>`).join('');
+    }
+
+    // --- UPDATED RENDER FUNCTION WITH INLINE CALCULATOR ---
+    function renderProducts(list) {
+        const el = document.getElementById('products-list');
+        el.innerHTML = list.map(p => {
+            const cost = p.cost_price || 0;
+            const markup = p.markup || 0;
+            const discount = p.discount_percent || 0;
+            
+            // Initial Calculations
+            const basePrice = cost * (1 + markup / 100);
+            const finalPrice = basePrice * (1 - discount / 100);
+            let margin = 0;
+            if (finalPrice > 0) margin = ((finalPrice - cost) / finalPrice) * 100;
+            
+            const marginClass = margin > 30 ? 'margin-green' : (margin > 15 ? 'margin-yellow' : 'margin-red');
+
+            return `
+            <div class="prod-item" id="item-${p.id}">
+                <button class="btn-edit" onclick="openProductModal(${p.id})">✎</button>
+                <div class="prod-main">
+                    <img class="prod-img" src="${p.image_url || ''}" onerror="this.style.display='none'">
+                    <div class="prod-info">
+                        <div class="prod-name">${p.name}</div>
+                        <div class="prod-price-box">
+                            ${discount > 0 ? `<div class="old-price" id="old-${p.id}">${Math.round(basePrice)} ₽</div>` : `<div class="old-price" id="old-${p.id}" style="display:none"></div>`}
+                            <div id="price-${p.id}">${Math.round(finalPrice)} ₽</div>
+                            <div id="margin-${p.id}" class="margin-badge ${marginClass}">${Math.round(margin)}%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INLINE CALCULATOR -->
+                <div class="inline-calc">
+                    <div class="calc-col">
+                        <div class="calc-label">Закуп (₽)</div>
+                        <div class="calc-input-wrap">
+                            <input type="number" class="calc-input" value="${cost}" style="color:var(--text-secondary)"
+                                   oninput="calcListItem(${p.id})" id="in-cost-${p.id}">
+                        </div>
+                    </div>
+                    <div class="calc-col">
+                        <div class="calc-label">Наценка</div>
+                        <div class="calc-input-wrap">
+                            <input type="number" class="calc-input" value="${markup}" 
+                                   oninput="calcListItem(${p.id})" id="in-markup-${p.id}">
+                            <span class="calc-suffix">%</span>
+                        </div>
+                    </div>
+                    <div class="calc-col">
+                        <div class="calc-label">Скидка</div>
+                        <div class="calc-input-wrap">
+                            <input type="number" class="calc-input" value="${discount}" 
+                                   oninput="calcListItem(${p.id})" id="in-discount-${p.id}">
+                            <span class="calc-suffix">%</span>
+                        </div>
+                    </div>
+                    <button class="item-save-btn" id="btn-save-${p.id}" onclick="saveListItem(${p.id})">Сохранить изменения</button>
+                    <input type="hidden" id="in-final-${p.id}" value="${finalPrice}">
+                </div>
+            </div>
+        `}).join('');
+    }
+
+    function calcListItem(id) {
+        const cost = parseFloat(document.getElementById(`in-cost-${id}`).value) || 0;
+        const markup = parseInt(document.getElementById(`in-markup-${id}`).value) || 0;
+        const discount = parseInt(document.getElementById(`in-discount-${id}`).value) || 0;
+
+        const basePrice = cost * (1 + markup / 100);
+        const finalPrice = basePrice * (1 - discount / 100);
+
+        // Update Price UI
+        const priceEl = document.getElementById(`price-${id}`);
+        const oldPriceEl = document.getElementById(`old-${id}`);
+        
+        priceEl.textContent = Math.round(finalPrice) + ' ₽';
+        document.getElementById(`in-final-${id}`).value = finalPrice; // store for save
+
+        if (discount > 0) {
+            oldPriceEl.style.display = 'block';
+            oldPriceEl.textContent = Math.round(basePrice) + ' ₽';
+        } else {
+            oldPriceEl.style.display = 'none';
+        }
+
+        // Update Margin UI
+        let margin = 0;
+        if (finalPrice > 0) margin = ((finalPrice - cost) / finalPrice) * 100;
+        
+        const marginEl = document.getElementById(`margin-${id}`);
+        marginEl.textContent = Math.round(margin) + '%';
+        marginEl.className = 'margin-badge ' + (margin > 30 ? 'margin-green' : (margin > 15 ? 'margin-yellow' : 'margin-red'));
+
+        // Show Save Button
+        document.getElementById(`btn-save-${id}`).style.display = 'block';
+    }
+
+    async function saveListItem(id) {
+        const btn = document.getElementById(`btn-save-${id}`);
+        const originalText = btn.textContent;
+        btn.textContent = 'Сохранение...';
+
+        const product = products.find(p => p.id == id);
+        if (!product) return;
+
+        const cost = parseFloat(document.getElementById(`in-cost-${id}`).value) || 0;
+        const markup = parseInt(document.getElementById(`in-markup-${id}`).value) || 0;
+        const discount = parseInt(document.getElementById(`in-discount-${id}`).value) || 0;
+        const finalPrice = parseFloat(document.getElementById(`in-final-${id}`).value);
+
+        const data = {
+            ...product, // Start with existing data
+            cost_price: cost,
+            markup: markup,
+            discount_percent: discount,
+            is_discount: discount > 0,
+            priceperkg: finalPrice // Update final price
+        };
+        // Clean up data for Pydantic update (don't send everything back maybe? actually PUT/PATCH expects partial or full)
+        // With Pydantic schemas, excess fields might be ignored or cause error depending on config.
+        // Let's construct a clean object based on what we want to update mostly, BUT we need valid schema.
+        // Easiest is to send what we have, relying on "exclude_unset" in backend patch. But here we have full object.
+        // Let's create a specific update payload.
+        
+        const updatePayload = {
+            cost_price: cost,
+            markup: markup,
+            discount_percent: discount,
+            is_discount: discount > 0,
+            priceperkg: finalPrice
+        };
+
+        try {
+            const res = await fetch(API_BASE + '/products/' + id, {
+                method: 'PATCH',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(updatePayload)
+            });
+
+            if (res.ok) {
+                btn.textContent = 'Сохранено! ✅';
+                setTimeout(() => { btn.style.display = 'none'; btn.textContent = 'Сохранить изменения'; }, 1500);
+                // Update local products array so we don't lose changes on tab switch
+                Object.assign(product, updatePayload); 
+            } else {
+                alert('Ошибка сохранения');
+                btn.textContent = originalText;
+            }
+        } catch (e) {
+            alert('Ошибка сети');
+            btn.textContent = originalText;
+        }
+    }
+
+    function renderCatSelect() {
+        const sel = document.getElementById('p-cat');
+        sel.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    }
+
+    // --- MODAL & CALCULATOR (Keep existing logic) ---
+    function syncMarkup(val, fromInput=false) {
+        if (!fromInput) document.getElementById('p-markup').value = val;
+        else document.getElementById('p-markup-range').value = val;
+        calcPrice();
+    }
+    
+    function syncDiscount(val, fromInput=false) {
+        if (!fromInput) document.getElementById('p-discount').value = val;
+        else document.getElementById('p-discount-range').value = val;
+        calcPrice();
+    }
+
+    function confirmCostChange(input) {
+        const newVal = parseFloat(input.value) || 0;
+        if (Math.abs(newVal - prevCost) > 1) { 
+            if (!confirm(`Изменить закупочную цену с ${prevCost} на ${newVal}? Это повлияет на маржу.`)) {
+                input.value = prevCost;
+                calcPrice();
+                return;
+            }
+        }
+        prevCost = newVal;
+        calcPrice();
+    }
+
+    function calcPrice() {
+        const cost = parseFloat(document.getElementById('p-cost').value) || 0;
+        const markup = parseInt(document.getElementById('p-markup').value) || 0;
+        const discount = parseInt(document.getElementById('p-discount').value) || 0;
+        const basePrice = cost * (1 + markup / 100);
+        const finalPrice = basePrice * (1 - discount / 100);
+
+        document.getElementById('p-price').value = finalPrice.toFixed(2);
+        document.getElementById('p-final-text').textContent = Math.round(finalPrice) + ' ₽';
+        
+        let margin = 0;
+        if (finalPrice > 0) margin = ((finalPrice - cost) / finalPrice) * 100;
+        
+        const badge = document.getElementById('p-margin-badge');
+        badge.textContent = Math.round(margin) + '%';
+        badge.className = 'margin-badge ' + (margin > 30 ? 'margin-green' : (margin > 15 ? 'margin-yellow' : 'margin-red'));
+
+        const discountBadge = document.getElementById('p-discount-badge');
+        if (discount > 0) {
+            discountBadge.style.display = 'block';
+            discountBadge.textContent = '-' + discount + '%';
+            discountBadge.style.background = 'var(--danger)';
+        } else {
+            discountBadge.style.display = 'none';
+        }
+    }
+
+    function openProductModal(id = null) {
+        const form = document.getElementById('prod-form');
+        form.reset();
+        document.getElementById('p-id').value = id || '';
+        document.getElementById('p-del-btn').style.display = id ? 'flex' : 'none';
+        
+        if (id && id !== 'null') {
+            const p = products.find(x => x.id == id);
+            if (!p) return; 
+
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-cat').value = p.categoryid;
+            document.getElementById('p-desc').value = p.description || '';
+            document.getElementById('p-code').value = p.code || '';
+            document.getElementById('p-weight').checked = p.is_weighted;
+            document.getElementById('p-hit').checked = p.is_hit;
+            document.getElementById('p-stock').checked = p.in_stock;
+            
+            const cost = p.cost_price || 0;
+            const markup = p.markup || 0;
+            const discount = p.discount_percent || 0;
+            
+            prevCost = cost;
+            document.getElementById('p-cost').value = cost;
+            
+            syncMarkup(markup);
+            syncDiscount(discount);
+            
+            document.getElementById('p-image-url').value = p.image_url || '';
+            if (p.image_url) {
+                document.getElementById('p-img-preview').src = p.image_url;
+                document.getElementById('p-img-preview').style.display = 'block';
+                document.getElementById('p-img-placeholder').style.display = 'none';
+            } else {
+                document.getElementById('p-img-preview').style.display = 'none';
+                document.getElementById('p-img-placeholder').style.display = 'block';
+            }
+        } else {
+            prevCost = 0;
+            document.getElementById('p-cost').value = 0;
+            syncMarkup(30);
+            syncDiscount(0);
+            document.getElementById('p-img-preview').style.display = 'none';
+            document.getElementById('p-img-placeholder').style.display = 'block';
+        }
+        document.getElementById('product-modal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('product-modal').classList.remove('active');
+    }
+
+    async function saveProductWithConfirm() {
+        if(!confirm("Сохранить изменения?")) return;
+        const id = document.getElementById('p-id').value;
+        const discountVal = parseInt(document.getElementById('p-discount').value);
+        const data = {
+            name: document.getElementById('p-name').value,
+            priceperkg: parseFloat(document.getElementById('p-price').value),
+            cost_price: parseFloat(document.getElementById('p-cost').value),
+            markup: parseInt(document.getElementById('p-markup').value),
+            categoryid: parseInt(document.getElementById('p-cat').value),
+            description: document.getElementById('p-desc').value,
+            code: document.getElementById('p-code').value,
+            is_weighted: document.getElementById('p-weight').checked,
+            is_hit: document.getElementById('p-hit').checked,
+            in_stock: document.getElementById('p-stock').checked,
+            is_discount: discountVal > 0,
+            discount_percent: discountVal,
+            image_url: document.getElementById('p-image-url').value || null
+        };
+        const method = id ? 'PATCH' : 'POST';
+        const url = id ? API_BASE + '/products/' + id : API_BASE + '/products';
+        try {
+            const res = await fetch(url, {method: method, headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)});
+            if (res.ok) { closeModal(); loadProducts(); }
+            else { const text = await res.text(); alert('Ошибка сохранения: ' + text); }
+        } catch(e) { alert('Ошибка сети'); }
+    }
+    
+    async function deleteProductWithConfirm() {
+        if(!confirm("Удалить?")) return;
+        const id = document.getElementById('p-id').value;
+        await fetch(API_BASE + '/products/' + id, {method:'DELETE'});
+        closeModal(); loadProducts();
+    }
+
+    async function uploadImage(input) {
+        const file = input.files[0];
+        if(!file) return;
+        const fd = new FormData(); fd.append('file', file);
+        const res = await fetch(API_BASE + '/upload/product-image', {method:'POST', body:fd});
+        const d = await res.json();
+        if(d.url) {
+            document.getElementById('p-image-url').value = d.url;
+            document.getElementById('p-img-preview').src = d.url;
+            document.getElementById('p-img-preview').style.display='block';
+            document.getElementById('p-img-placeholder').style.display='none';
+        }
+    }
+
+    loadProducts();
+</script>
+</body>
+</html>

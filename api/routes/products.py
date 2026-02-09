@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import List
+import uuid
 
 from api.database import get_db
 from api.models.product import Product
@@ -12,7 +13,7 @@ router = APIRouter()
 @router.get("/", response_model=List[ProductResponse])
 async def get_products(
     skip: int = 0,
-    limit: int = 100,
+    limit: int = 2000,
     category: str = None,
     in_stock: bool = None,
     db: AsyncSession = Depends(get_db)
@@ -45,6 +46,8 @@ async def get_product(product_id: int, db: AsyncSession = Depends(get_db)):
 @router.post("/", response_model=ProductResponse, status_code=201)
 async def create_product(product: ProductCreate, db: AsyncSession = Depends(get_db)):
     """Создать новый товар"""
+    if not product.code:
+        product.code = str(uuid.uuid4())[:8]
     db_product = Product(**product.model_dump())
     db.add(db_product)
     await db.commit()
@@ -61,6 +64,7 @@ async def update_product(
     """Обновить товар"""
     result = await db.execute(select(Product).where(Product.id == product_id))
     db_product = result.scalar_one_or_none()
+    print(f"DEBUG UPDATE: id={product_id}, found={db_product}")
     
     if not db_product:
         raise HTTPException(status_code=404, detail="Товар не найден")
@@ -75,16 +79,27 @@ async def update_product(
     
     return db_product
 
+@router.put("/{product_id}", response_model=ProductResponse)
+async def update_product_put(
+    product_id: int,
+    product_update: ProductUpdate,
+    db: AsyncSession = Depends(get_db)
+):
+    """Обновить товар (PUT для совместимости с miniapp_admin)"""
+    return await update_product(product_id, product_update, db)
+
 @router.delete("/{product_id}", status_code=204)
 async def delete_product(product_id: int, db: AsyncSession = Depends(get_db)):
-    """Удалить товар (мягкое удаление)"""
+    """Удалить товар (мягкое удаление/hard delete)"""
     result = await db.execute(select(Product).where(Product.id == product_id))
     db_product = result.scalar_one_or_none()
+    print(f"DEBUG UPDATE: id={product_id}, found={db_product}")
     
     if not db_product:
         raise HTTPException(status_code=404, detail="Товар не найден")
     
-    db_product.is_active = False
+    # Hard delete for simplicity now, or soft delete if model supports it
+    await db.delete(db_product) 
     await db.commit()
     
     return None
